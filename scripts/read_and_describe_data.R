@@ -13,7 +13,7 @@ set.seed(16)
 #' read data and generate descriptive tables and plots
 #' ####################################################
 read_csv("./data/dat_long.csv") %>%
-  mutate(unit = replace(unit, unit=="M1", "R1")) %>%
+  #mutate(unit = replace(unit, unit=="M1", "R1")) %>%
   identity() -> dat_long
 
 dat_long %>%
@@ -53,7 +53,7 @@ dat_first %>%
   arrange(desc(prop_positive)) %>%
   gt::gt() %>%
   gt::fmt_percent(columns = prop_positive, decimals = 1) %>%
-  gt::tab_header(title = "Summary of Hospital Units")
+  gt::tab_header(title = "Summary of Subjects")
 
 
 
@@ -82,4 +82,14 @@ dat_long %>%
   ungroup() %>%
   qplot(data = ., x = subject_covid_day, y = prop_positive, facets = ~ swab_site, geom = "point") +
   labs(title = "SARS-CoV-2 Detection vs Days Post COVID-19 Diagnosis") +
+  theme(plot.title.position = "plot")
+
+
+
+
+# distance summary
+dat_first %>%
+  qplot(data = ., x = distance, y = copies_max, facets = ~ swab_site, geom = "point") +
+  scale_y_log10()
+  labs(title = "SARS-CoV-2 Abundance vs Distance from Patient's Bed") +
   theme(plot.title.position = "plot")
