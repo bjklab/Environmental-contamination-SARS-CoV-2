@@ -13,6 +13,7 @@ set.seed(16)
 #' read data and generate descriptive tables and plots
 #' ####################################################
 read_csv("./data/dat_long.csv") %>%
+  mutate(unit = replace(unit, unit=="M1", "R1")) %>%
   identity() -> dat_long
 
 dat_long %>%
@@ -20,7 +21,6 @@ dat_long %>%
   filter(subject_study_day == min(subject_study_day)) %>%
   ungroup() %>%
   identity() -> dat_first
-
 
 # sample site summary
 dat_first %>%
