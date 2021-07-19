@@ -56,6 +56,18 @@ dat_first %>%
   gt::tab_header(title = "Summary of Subjects")
 
 
+# subject & unit summary
+dat_first %>%
+  group_by(redcap_id, unit) %>%
+  summarise(prop_positive = sum(!is.na(copies_max)) / n()) %>%
+  ungroup() %>%
+  group_by(unit) %>%
+  arrange(desc(prop_positive)) %>%
+  gt::gt() %>%
+  gt::fmt_percent(columns = prop_positive, decimals = 1) %>%
+  gt::tab_header(title = "Summary of Subjects & Units")
+
+
 
 # time summary
 dat_long %>%
@@ -90,6 +102,6 @@ dat_long %>%
 # distance summary
 dat_first %>%
   qplot(data = ., x = distance, y = copies_max, facets = ~ swab_site, geom = "point") +
-  scale_y_log10()
+  scale_y_log10() +
   labs(title = "SARS-CoV-2 Abundance vs Distance from Patient's Bed") +
   theme(plot.title.position = "plot")
