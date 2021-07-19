@@ -189,6 +189,90 @@ p_scv2_linear_distance_site_category
 #' - nested random effects? for high-touch
 #' ###################################
 
+#' ####################################################
+#' generative model for SARS-CoV-2 contamination
+#' - linear abundance data
+#' - binomial probability of detection
+#' ####################################################
+
+dat_long %>%
+  filter(!site_descriptor %in% c("sink","toilet","wall_bathroom")) %>%
+  mutate(scv2_detected = !is.na(copies_max),
+         site_level = case_when(grepl("floor", site_descriptor) ~ "Floor",
+                                grepl("floor", site_descriptor) == FALSE ~ "Elevated")) %>% 
+  #count(site_descriptor, site_level) 
+  select(redcap_id, subject_covid_day, subject_hosp_day, subject_covid_day, swab_site, unit, site_level, touch, distance, copies_max, scv2_detected) %>%
+  distinct() %>%
+  identity() -> dat
+
+dat
+
+
+#' run binomial model
+dat %>%
+  filter(site_level != "Bathroom") %>%
+  brm(formula = scv2_detected ~ 0 + (1 + distance | site_level / touch),
+      data = .,
+      family = bernoulli,
+      chains = 4,
+      cores = 4,
+      control = list("adapt_delta" = 0.999, max_treedepth = 18),
+      backend = "cmdstanr",
+      seed = 16) -> m_binom_scv2_distance_mix_level
+
+m_binom_scv2_distance_mix_level %>% write_rds(file = "./models/binomial/m_binom_scv2_distance_mix_level.rds.gz", compress = "gz")
+m_binom_scv2_distance_mix_level <- read_rds(file = "./models/binomial/m_binom_scv2_distance_mix_level.rds.gz")
+
+m_binom_scv2_distance_mix_level
+rstan::check_hmc_diagnostics(m_binom_scv2_distance_mix_level$fit)
+m_binom_scv2_distance_mix_level %>% pp_check()
+
+m_binom_scv2_distance_mix_level %>%
+  posterior_summary() %>%
+  as_tibble(rownames = "param") %>%
+  gt::gt() %>%
+  gt::fmt_number(columns = 2:5, n_sigfig = 3)
+
+
+#' fitted
+m_binom_scv2_distance_mix_level$data %>%
+  as_tibble() %>%
+  expand(distance = modelr::seq_range(distance, n = 100),
+         site_level = unique(site_level),
+         touch = unique(touch)) %>%
+  filter(!(touch == "High" & site_level == "Floor")) %>%
+  add_fitted_draws(m_binom_scv2_distance_mix_level) %>%
+  identity() -> m_binom_scv2_distance_mix_level_fitted
+m_binom_scv2_distance_mix_level_fitted
+
+
+m_binom_scv2_distance_mix_level_fitted %>%
+  ggplot(aes(x = distance, y = .value)) +
+  #geom_point(data = m_binom_scv2_distance_mix_level$data, aes(x = distance, y = scv2_detected), color = "grey", alpha = 0.5) +
+  stat_lineribbon() +
+  facet_wrap(facets = ~ site_level + touch, scales = "fixed") +
+  scale_fill_brewer(palette = "Reds") +
+  labs(x = "Distance from Patient (meters)",
+       y = "Probability of SARS-CoV-2 Detection by RT-PCR",
+       fill = "Posterior Credible Interval") +
+  theme_bw() +
+  theme(strip.text = ggtext::element_markdown(color = "black", size = 8),
+        axis.text.x = ggtext::element_markdown(color = "black"),
+        axis.text.y = ggtext::element_markdown(color = "black"),
+        legend.position = "top",
+        #legend.background = element_rect(fill = "white", color = "black", size = 0.25),
+        strip.background = element_blank()) -> p_scv2_binomial_distance_site_level
+p_scv2_binomial_distance_site_level
+
+
+# p_scv2_binomial_distance_site_level %>%
+#   ggsave(filename = "./figs/p_scv2_binomial_distance_site_level.pdf", height = 5, width = 8, units = "in")
+# p_scv2_binomial_distance_site_level %>%
+#   ggsave(filename = "./figs/p_scv2_binomial_distance_site_level.png", height = 5, width = 8, units = "in", dpi = 600)
+# p_scv2_binomial_distance_site_level %>%
+#   ggsave(filename = "./figs/p_scv2_binomial_distance_site_level.svg", height = 5, width = 8, units = "in")
+
+
 
 
 
