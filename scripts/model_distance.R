@@ -56,6 +56,7 @@ dat %>%
 
 #' run binomial model
 dat %>%
+  filter(site_category != "Bathroom") %>%
   brm(formula = scv2_detected ~ 0 + (1 + distance | site_category),
       data = .,
       family = bernoulli,
@@ -118,17 +119,18 @@ p_scv2_binomial_distance_site_category
 
 
 #' run linear model
-dat %>%
-  brm(formula = log10(copies_max) ~ 0 + (1 + distance | site_category),
-      data = .,
-      family = gaussian,
-      chains = 4,
-      cores = 4,
-      control = list("adapt_delta" = 0.999, max_treedepth = 18),
-      backend = "cmdstanr",
-      seed = 16) -> m_linear_scv2_distance_mix_category
-
-m_linear_scv2_distance_mix_category %>% write_rds(file = "./models/linear/m_linear_scv2_distance_mix_category.rds.gz", compress = "gz")
+# dat %>%
+#   filter(site_category != "Bathroom") %>%
+#   brm(formula = log10(copies_max) ~ 0 + (1 + distance | site_category),
+#       data = .,
+#       family = gaussian,
+#       chains = 4,
+#       cores = 4,
+#       control = list("adapt_delta" = 0.999, max_treedepth = 18),
+#       backend = "cmdstanr",
+#       seed = 16) -> m_linear_scv2_distance_mix_category
+# 
+# m_linear_scv2_distance_mix_category %>% write_rds(file = "./models/linear/m_linear_scv2_distance_mix_category.rds.gz", compress = "gz")
 m_linear_scv2_distance_mix_category <- read_rds(file = "./models/linear/m_linear_scv2_distance_mix_category.rds.gz")
 
 m_linear_scv2_distance_mix_category
@@ -180,6 +182,12 @@ p_scv2_linear_distance_site_category
 # p_scv2_linear_distance_site_category %>%
 #   ggsave(filename = "./figs/p_scv2_linear_distance_site_category.svg", height = 5, width = 8, units = "in")
 
+
+
+#' ###################################
+#' DISTANCE MODELS: FLOOR vs ELEVATED
+#' - nested random effects? for high-touch
+#' ###################################
 
 
 
