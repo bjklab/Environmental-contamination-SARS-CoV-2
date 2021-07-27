@@ -10,7 +10,7 @@ set.seed(16)
 
 
 #' ####################################################
-#' read data and generate descriptive tables and plots
+#' read data
 #' ####################################################
 read_csv("./data/dat_long.csv") %>%
   #mutate(unit = replace(unit, unit=="M1", "R1")) %>%
