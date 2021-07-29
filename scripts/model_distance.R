@@ -39,14 +39,13 @@ dat_first %>%
          site_category = case_when(grepl("floor",site_descriptor) == TRUE ~ "floor",
                                    grepl("floor",site_descriptor) == FALSE ~ "elevated"),
          high_touch = touch == "High") %>%
-  #count(site_descriptor, site_category, high_touch)
+  #count(site_descriptor, site_category, high_touch) %>% gt()
   select(redcap_id, subject_covid_day, subject_hosp_day, subject_covid_day, swab_site, unit, site_category, touch, high_touch, distance, copies_max, scv2_detected) %>%
   mutate(site_category = stringr::str_to_title(gsub("_"," ",site_category))) %>%
   distinct() %>%
   identity() -> dat
 
 dat
-
 
 
 #' get prior
@@ -58,18 +57,18 @@ dat %>%
 
 
 #' run binomial model
-dat %>%
-  select(scv2_detected, distance, site_category) %>%
-  brm(formula = scv2_detected ~ 0 + (1 + distance | site_category),
-      data = .,
-      family = bernoulli,
-      chains = 4,
-      cores = 4,
-      control = list("adapt_delta" = 0.999, max_treedepth = 10),
-      backend = "cmdstanr",
-      seed = 16) -> m_binom_scv2_distance_mix_category
-
-m_binom_scv2_distance_mix_category %>% write_rds(file = "./models/binomial/m_binom_scv2_distance_mix_category.rds.gz", compress = "gz")
+# dat %>%
+#   select(scv2_detected, distance, site_category) %>%
+#   brm(formula = scv2_detected ~ 0 + (1 + distance | site_category),
+#       data = .,
+#       family = bernoulli,
+#       chains = 4,
+#       cores = 4,
+#       control = list("adapt_delta" = 0.999, max_treedepth = 10),
+#       backend = "cmdstanr",
+#       seed = 16) -> m_binom_scv2_distance_mix_category
+# 
+# m_binom_scv2_distance_mix_category %>% write_rds(file = "./models/binomial/m_binom_scv2_distance_mix_category.rds.gz", compress = "gz")
 m_binom_scv2_distance_mix_category <- read_rds(file = "./models/binomial/m_binom_scv2_distance_mix_category.rds.gz")
 
 m_binom_scv2_distance_mix_category
@@ -145,18 +144,18 @@ dat %>%
 
 
 #' run binomial model
-dat %>%
-  select(scv2_detected, distance, site_category, high_touch) %>%
-  brm(formula = scv2_detected ~ 0 + (1 + distance | site_category / high_touch),
-      data = .,
-      family = bernoulli,
-      chains = 4,
-      cores = 4,
-      control = list("adapt_delta" = 0.999, max_treedepth = 10),
-      backend = "cmdstanr",
-      seed = 16) -> m_binom_scv2_distance_mix_category_touch
-
-m_binom_scv2_distance_mix_category_touch %>% write_rds(file = "./models/binomial/m_binom_scv2_distance_mix_category_touch.rds.gz", compress = "gz")
+# dat %>%
+#   select(scv2_detected, distance, site_category, high_touch) %>%
+#   brm(formula = scv2_detected ~ 0 + (1 + distance | site_category / high_touch),
+#       data = .,
+#       family = bernoulli,
+#       chains = 4,
+#       cores = 4,
+#       control = list("adapt_delta" = 0.999, max_treedepth = 10),
+#       backend = "cmdstanr",
+#       seed = 16) -> m_binom_scv2_distance_mix_category_touch
+# 
+# m_binom_scv2_distance_mix_category_touch %>% write_rds(file = "./models/binomial/m_binom_scv2_distance_mix_category_touch.rds.gz", compress = "gz")
 m_binom_scv2_distance_mix_category_touch <- read_rds(file = "./models/binomial/m_binom_scv2_distance_mix_category_touch.rds.gz")
 
 m_binom_scv2_distance_mix_category_touch
@@ -251,18 +250,18 @@ dat %>%
 
 
 #' run linear model: does NOT account for specimens with unmeasured copy numbers
-dat %>%
-  select(copies_max, distance, site_category) %>%
-  brm(formula = log10(copies_max) ~ 0 + (1 + distance | site_category),
-      data = .,
-      family = gaussian,
-      chains = 4,
-      cores = 4,
-      control = list("adapt_delta" = 0.999, max_treedepth = 10),
-      backend = "cmdstanr",
-      seed = 16) -> m_linear_scv2_distance_mix_category
-
-m_linear_scv2_distance_mix_category %>% write_rds(file = "./models/linear/m_linear_scv2_distance_mix_category.rds.gz", compress = "gz")
+# dat %>%
+#   select(copies_max, distance, site_category) %>%
+#   brm(formula = log10(copies_max) ~ 0 + (1 + distance | site_category),
+#       data = .,
+#       family = gaussian,
+#       chains = 4,
+#       cores = 4,
+#       control = list("adapt_delta" = 0.999, max_treedepth = 10),
+#       backend = "cmdstanr",
+#       seed = 16) -> m_linear_scv2_distance_mix_category
+# 
+# m_linear_scv2_distance_mix_category %>% write_rds(file = "./models/linear/m_linear_scv2_distance_mix_category.rds.gz", compress = "gz")
 m_linear_scv2_distance_mix_category <- read_rds(file = "./models/linear/m_linear_scv2_distance_mix_category.rds.gz")
 
 m_linear_scv2_distance_mix_category
@@ -357,18 +356,18 @@ dat %>%
 
 
 #' run linear model
-dat %>%
-  select(copies_max, distance, site_category, high_touch) %>%
-  brm(formula = log10(copies_max) ~ 0 + (1 + distance | site_category / high_touch),
-      data = .,
-      family = gaussian,
-      chains = 4,
-      cores = 4,
-      control = list("adapt_delta" = 0.99999, max_treedepth = 10),
-      backend = "cmdstanr",
-      seed = 16) -> m_linear_scv2_distance_mix_category_touch
-
-m_linear_scv2_distance_mix_category_touch %>% write_rds(file = "./models/linear/m_linear_scv2_distance_mix_category_touch.rds.gz", compress = "gz")
+# dat %>%
+#   select(copies_max, distance, site_category, high_touch) %>%
+#   brm(formula = log10(copies_max) ~ 0 + (1 + distance | site_category / high_touch),
+#       data = .,
+#       family = gaussian,
+#       chains = 4,
+#       cores = 4,
+#       control = list("adapt_delta" = 0.99999, max_treedepth = 10),
+#       backend = "cmdstanr",
+#       seed = 16) -> m_linear_scv2_distance_mix_category_touch
+# 
+# m_linear_scv2_distance_mix_category_touch %>% write_rds(file = "./models/linear/m_linear_scv2_distance_mix_category_touch.rds.gz", compress = "gz")
 m_linear_scv2_distance_mix_category_touch <- read_rds(file = "./models/linear/m_linear_scv2_distance_mix_category_touch.rds.gz")
 
 m_linear_scv2_distance_mix_category_touch
@@ -471,19 +470,19 @@ dat %>%
 
 
 #' run hurdle model: does NOT account for specimens with unmeasured copy numbers
-dat %>%
-  mutate(copies_max = replace(copies_max, is.na(copies_max), 0)) %>%
-  select(copies_max, distance, site_category) %>%
-  brm(formula = copies_max ~ 1 + (1 + distance | site_category),
-      data = .,
-      family = hurdle_lognormal(),
-      chains = 4,
-      cores = 4,
-      control = list("adapt_delta" = 0.999, max_treedepth = 10),
-      backend = "cmdstanr",
-      seed = 16) -> m_hurdle_scv2_distance_mix_category
-
-m_hurdle_scv2_distance_mix_category %>% write_rds(file = "./models/hurdle/m_hurdle_scv2_distance_mix_category.rds.gz", compress = "gz")
+# dat %>%
+#   mutate(copies_max = replace(copies_max, is.na(copies_max), 0)) %>%
+#   select(copies_max, distance, site_category) %>%
+#   brm(formula = copies_max ~ 1 + (1 + distance | site_category),
+#       data = .,
+#       family = hurdle_lognormal(),
+#       chains = 4,
+#       cores = 4,
+#       control = list("adapt_delta" = 0.999, max_treedepth = 10),
+#       backend = "cmdstanr",
+#       seed = 16) -> m_hurdle_scv2_distance_mix_category
+# 
+# m_hurdle_scv2_distance_mix_category %>% write_rds(file = "./models/hurdle/m_hurdle_scv2_distance_mix_category.rds.gz", compress = "gz")
 m_hurdle_scv2_distance_mix_category <- read_rds(file = "./models/hurdle/m_hurdle_scv2_distance_mix_category.rds.gz")
 
 m_hurdle_scv2_distance_mix_category
@@ -579,19 +578,19 @@ dat %>%
 
 
 #' run hurdle model
-dat %>%
-  mutate(copies_max = replace(copies_max, is.na(copies_max), 0)) %>%
-  select(copies_max, distance, site_category, high_touch) %>%
-  brm(formula = copies_max ~ 1 + (1 + distance | site_category / high_touch),
-      data = .,
-      family = hurdle_lognormal(),
-      chains = 4,
-      cores = 4,
-      control = list("adapt_delta" = 0.99999, max_treedepth = 10),
-      backend = "cmdstanr",
-      seed = 16) -> m_hurdle_scv2_distance_mix_category_touch
-
-m_hurdle_scv2_distance_mix_category_touch %>% write_rds(file = "./models/hurdle/m_hurdle_scv2_distance_mix_category_touch.rds.gz", compress = "gz")
+# dat %>%
+#   mutate(copies_max = replace(copies_max, is.na(copies_max), 0)) %>%
+#   select(copies_max, distance, site_category, high_touch) %>%
+#   brm(formula = copies_max ~ 1 + (1 + distance | site_category / high_touch),
+#       data = .,
+#       family = hurdle_lognormal(),
+#       chains = 4,
+#       cores = 4,
+#       control = list("adapt_delta" = 0.99999, max_treedepth = 10),
+#       backend = "cmdstanr",
+#       seed = 16) -> m_hurdle_scv2_distance_mix_category_touch
+# 
+# m_hurdle_scv2_distance_mix_category_touch %>% write_rds(file = "./models/hurdle/m_hurdle_scv2_distance_mix_category_touch.rds.gz", compress = "gz")
 m_hurdle_scv2_distance_mix_category_touch <- read_rds(file = "./models/hurdle/m_hurdle_scv2_distance_mix_category_touch.rds.gz")
 
 m_hurdle_scv2_distance_mix_category_touch
