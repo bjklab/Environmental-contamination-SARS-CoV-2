@@ -13,13 +13,13 @@ set.seed(16)
 #' read data
 #' ####################################################
 read_csv("./data/dat_long.csv") %>%
-  #mutate(unit = replace(unit, unit=="M1", "R1")) %>%
   identity() -> dat_long
 dat_long
 
+
 dat_long %>%
-  group_by(redcap_id) %>%
-  filter(subject_study_day == min(subject_study_day)) %>%
+  group_by(subject_room_id) %>%
+  filter(subject_room_day == min(subject_room_day)) %>%
   ungroup() %>%
   identity() -> dat_first
 dat_first
@@ -64,7 +64,7 @@ dat %>%
 #       family = bernoulli,
 #       chains = 4,
 #       cores = 4,
-#       control = list("adapt_delta" = 0.999, max_treedepth = 10),
+#       control = list("adapt_delta" = 0.9999, max_treedepth = 10),
 #       backend = "cmdstanr",
 #       seed = 16) -> m_binom_scv2_distance_mix_category
 # 
@@ -90,7 +90,7 @@ m_binom_scv2_distance_mix_category$data %>%
          #high_touch = unique(high_touch)
          ) %>%
   #filter(!(high_touch == TRUE & site_category == "Floor")) %>%
-  add_fitted_draws(m_binom_scv2_distance_mix_category) %>%
+  add_epred_draws(m_binom_scv2_distance_mix_category) %>%
   identity() -> m_binom_scv2_distance_mix_category_fitted
 m_binom_scv2_distance_mix_category_fitted
 
@@ -98,7 +98,7 @@ m_binom_scv2_distance_mix_category_fitted
 m_binom_scv2_distance_mix_category_fitted %>%
   #mutate(high_touch = case_when(high_touch == TRUE ~ "High Touch",
   #                              high_touch == FALSE ~ "Low Touch")) %>%
-  ggplot(aes(x = distance, y = .value)) +
+  ggplot(aes(x = distance, y = .epred)) +
   #geom_point(data = m_binom_scv2_distance_mix_category$data, aes(x = distance, y = scv2_detected), color = "grey", alpha = 0.5) +
   stat_lineribbon() +
   #facet_wrap(facets = ~ site_category + high_touch, scales = "fixed") +
@@ -177,7 +177,7 @@ m_binom_scv2_distance_mix_category_touch$data %>%
          high_touch = unique(high_touch)
   ) %>%
   filter(!(high_touch == TRUE & site_category == "Floor")) %>%
-  add_fitted_draws(m_binom_scv2_distance_mix_category_touch) %>%
+  add_epred_draws(m_binom_scv2_distance_mix_category_touch) %>%
   identity() -> m_binom_scv2_distance_mix_category_touch_fitted
 m_binom_scv2_distance_mix_category_touch_fitted
 
@@ -185,7 +185,7 @@ m_binom_scv2_distance_mix_category_touch_fitted
 m_binom_scv2_distance_mix_category_touch_fitted %>%
   mutate(high_touch = case_when(high_touch == TRUE ~ "High Touch",
                                 high_touch == FALSE ~ "Low Touch")) %>%
-  ggplot(aes(x = distance, y = .value)) +
+  ggplot(aes(x = distance, y = .epred)) +
   #geom_point(data = m_binom_scv2_distance_mix_category_touch$data, aes(x = distance, y = scv2_detected), color = "grey", alpha = 0.5) +
   stat_lineribbon() +
   facet_wrap(facets = ~ site_category + high_touch, scales = "fixed") +
@@ -257,7 +257,7 @@ dat %>%
 #       family = gaussian,
 #       chains = 4,
 #       cores = 4,
-#       control = list("adapt_delta" = 0.999, max_treedepth = 10),
+#       control = list("adapt_delta" = 0.9999, max_treedepth = 10),
 #       backend = "cmdstanr",
 #       seed = 16) -> m_linear_scv2_distance_mix_category
 # 
@@ -283,7 +283,7 @@ m_linear_scv2_distance_mix_category$data %>%
          #high_touch = unique(high_touch)
   ) %>%
   #filter(!(high_touch == TRUE & site_category == "Floor")) %>%
-  add_fitted_draws(m_linear_scv2_distance_mix_category) %>%
+  add_epred_draws(m_linear_scv2_distance_mix_category) %>%
   identity() -> m_linear_scv2_distance_mix_category_fitted
 m_linear_scv2_distance_mix_category_fitted
 
@@ -291,7 +291,7 @@ m_linear_scv2_distance_mix_category_fitted
 m_linear_scv2_distance_mix_category_fitted %>%
   #mutate(high_touch = case_when(high_touch == TRUE ~ "High Touch",
   #                              high_touch == FALSE ~ "Low Touch")) %>%
-  ggplot(aes(x = distance, y = .value)) +
+  ggplot(aes(x = distance, y = .epred)) +
   stat_lineribbon() +
   geom_point(data = m_linear_scv2_distance_mix_category$data, aes(x = distance, y = log10(copies_max)), color = "grey", alpha = 0.5) +
   #facet_wrap(facets = ~ site_category + high_touch, scales = "fixed") +
@@ -363,7 +363,7 @@ dat %>%
 #       family = gaussian,
 #       chains = 4,
 #       cores = 4,
-#       control = list("adapt_delta" = 0.99999, max_treedepth = 10),
+#       control = list("adapt_delta" = 0.999999, max_treedepth = 10),
 #       backend = "cmdstanr",
 #       seed = 16) -> m_linear_scv2_distance_mix_category_touch
 # 
@@ -389,7 +389,7 @@ m_linear_scv2_distance_mix_category_touch$data %>%
          high_touch = unique(high_touch)
   ) %>%
   filter(!(high_touch == TRUE & site_category == "Floor")) %>%
-  add_fitted_draws(m_linear_scv2_distance_mix_category_touch) %>%
+  add_epred_draws(m_linear_scv2_distance_mix_category_touch) %>%
   identity() -> m_linear_scv2_distance_mix_category_touch_fitted
 m_linear_scv2_distance_mix_category_touch_fitted
 
@@ -397,7 +397,7 @@ m_linear_scv2_distance_mix_category_touch_fitted
 m_linear_scv2_distance_mix_category_touch_fitted %>%
   mutate(high_touch = case_when(high_touch == TRUE ~ "High Touch",
                                 high_touch == FALSE ~ "Low Touch")) %>%
-  ggplot(aes(x = distance, y = .value)) +
+  ggplot(aes(x = distance, y = .epred)) +
   stat_lineribbon() +
   geom_point(data = mutate(as_tibble(m_linear_scv2_distance_mix_category_touch$data),
                            high_touch = case_when(high_touch == TRUE ~ "High Touch",
@@ -478,7 +478,7 @@ dat %>%
 #       family = hurdle_lognormal(),
 #       chains = 4,
 #       cores = 4,
-#       control = list("adapt_delta" = 0.999, max_treedepth = 10),
+#       control = list("adapt_delta" = 0.9999, max_treedepth = 10),
 #       backend = "cmdstanr",
 #       seed = 16) -> m_hurdle_scv2_distance_mix_category
 # 
@@ -504,7 +504,7 @@ m_hurdle_scv2_distance_mix_category$data %>%
          #high_touch = unique(high_touch)
   ) %>%
   #filter(!(high_touch == TRUE & site_category == "Floor")) %>%
-  add_fitted_draws(m_hurdle_scv2_distance_mix_category) %>%
+  add_epred_draws(m_hurdle_scv2_distance_mix_category) %>%
   identity() -> m_hurdle_scv2_distance_mix_category_fitted
 m_hurdle_scv2_distance_mix_category_fitted
 
@@ -512,7 +512,7 @@ m_hurdle_scv2_distance_mix_category_fitted
 m_hurdle_scv2_distance_mix_category_fitted %>%
   #mutate(high_touch = case_when(high_touch == TRUE ~ "High Touch",
   #                              high_touch == FALSE ~ "Low Touch")) %>%
-  ggplot(aes(x = distance, y = .value)) +
+  ggplot(aes(x = distance, y = .epred)) +
   stat_lineribbon() +
   geom_point(data = m_hurdle_scv2_distance_mix_category$data, aes(x = distance, y = copies_max), color = "grey", alpha = 0.5) +
   #facet_wrap(facets = ~ site_category + high_touch, scales = "fixed") +
@@ -586,7 +586,7 @@ dat %>%
 #       family = hurdle_lognormal(),
 #       chains = 4,
 #       cores = 4,
-#       control = list("adapt_delta" = 0.99999, max_treedepth = 10),
+#       control = list("adapt_delta" = 0.99999999, max_treedepth = 10),
 #       backend = "cmdstanr",
 #       seed = 16) -> m_hurdle_scv2_distance_mix_category_touch
 # 
@@ -612,7 +612,7 @@ m_hurdle_scv2_distance_mix_category_touch$data %>%
          high_touch = unique(high_touch)
   ) %>%
   filter(!(high_touch == TRUE & site_category == "Floor")) %>%
-  add_fitted_draws(m_hurdle_scv2_distance_mix_category_touch) %>%
+  add_epred_draws(m_hurdle_scv2_distance_mix_category_touch) %>%
   identity() -> m_hurdle_scv2_distance_mix_category_touch_fitted
 m_hurdle_scv2_distance_mix_category_touch_fitted
 
@@ -620,7 +620,7 @@ m_hurdle_scv2_distance_mix_category_touch_fitted
 m_hurdle_scv2_distance_mix_category_touch_fitted %>%
   mutate(high_touch = case_when(high_touch == TRUE ~ "High Touch",
                                 high_touch == FALSE ~ "Low Touch")) %>%
-  ggplot(aes(x = distance, y = .value)) +
+  ggplot(aes(x = distance, y = .epred)) +
   stat_lineribbon() +
   geom_point(data = mutate(as_tibble(m_hurdle_scv2_distance_mix_category_touch$data),
                            high_touch = case_when(high_touch == TRUE ~ "High Touch",
