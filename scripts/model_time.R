@@ -559,8 +559,7 @@ p_scv2_hurdle_subject_covid_day_site_category
 
 
 #' ####################################################
-#' generative model for SARS-CoV-2 contamination
-#' - initial sample only
+#' generative model for SARS-CoV-2 contamination ~ days from COVID-19 diagnosis
 #' - elevated vs floor -- accounting for high-touch
 #' - hurdle quantity detected
 #' ####################################################
@@ -674,8 +673,246 @@ p_scv2_hurdle_subject_covid_day_site_category_touch
 
 
 #' ############################
-#' MULTIVARIABLE MODELS to IMPROVE MODEL FIT
+#' MULTIVARIABLE MODELS to COMPARE with HEIRARCHICAL MODELS
 #' ############################
+
+#' ####################################################
+#' generative model for SARS-CoV-2 contamination ~ days from COVID diagnosis
+#' - elevated vs floor -- accounting for high-touch
+#' - binomial probability of detection
+#' ####################################################
+
+dat_long %>%
+  # exclude bathroom sites and nursing sites (different distance scheme)
+  filter(grepl("bathroom|sink|toilet|nurse",site_descriptor) == FALSE) %>%
+  mutate(scv2_detected = !is.na(copies_max),
+         site_category = case_when(grepl("floor",site_descriptor) == TRUE ~ "floor",
+                                   grepl("floor",site_descriptor) == FALSE ~ "elevated"),
+         high_touch = touch == "High") %>%
+  #count(site_descriptor, site_category, high_touch)
+  select(subject_room_id, redcap_id, subject_room_day, subject_covid_day, subject_hosp_day, subject_covid_day, swab_site, unit, site_category, touch, high_touch, distance, copies_max, scv2_detected) %>%
+  mutate(redcap_id = paste0("decon_subject_", redcap_id)) %>%
+  mutate(site_category = stringr::str_to_title(gsub("_"," ",site_category))) %>%
+  distinct() %>%
+  identity() -> dat
+
+dat
+
+
+#' get prior
+dat %>%
+  brms::get_prior(data = ., family = bernoulli,
+                  scv2_detected ~ 1 + subject_covid_day + site_category + high_touch
+  ) %>%
+  gt::gt()
+
+
+#' run binomial model
+# dat %>%
+#   select(scv2_detected, subject_covid_day, site_category, high_touch) %>%
+#   brm(formula = scv2_detected ~ 1 + subject_covid_day + site_category + high_touch,
+#       data = .,
+#       family = bernoulli,
+#       chains = 4,
+#       cores = 4,
+#       control = list("adapt_delta" = 0.999, max_treedepth = 10),
+#       backend = "cmdstanr",
+#       seed = 16) -> m_mvbinom_scv2_time_fix_category_touch
+# 
+# m_mvbinom_scv2_time_fix_category_touch %>% write_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch.rds.gz", compress = "gz")
+m_mvbinom_scv2_time_fix_category_touch <- read_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch.rds.gz")
+
+m_mvbinom_scv2_time_fix_category_touch
+rstan::check_hmc_diagnostics(m_mvbinom_scv2_time_fix_category_touch$fit)
+m_mvbinom_scv2_time_fix_category_touch %>% pp_check()
+
+m_mvbinom_scv2_time_fix_category_touch %>%
+  posterior_summary() %>%
+  as_tibble(rownames = "param") %>%
+  gt::gt() %>%
+  gt::fmt_number(columns = 2:5, n_sigfig = 3)
+
+
+#' fitted
+m_mvbinom_scv2_time_fix_category_touch$data %>%
+  as_tibble() %>%
+  expand(subject_covid_day = modelr::seq_range(subject_covid_day, n = 100),
+         site_category = unique(site_category),
+         high_touch = unique(high_touch)
+  ) %>%
+  filter(!(high_touch == TRUE & site_category == "Floor")) %>%
+  add_epred_draws(m_mvbinom_scv2_time_fix_category_touch) %>%
+  identity() -> m_mvbinom_scv2_time_fix_category_touch_fitted
+m_mvbinom_scv2_time_fix_category_touch_fitted
+
+
+m_mvbinom_scv2_time_fix_category_touch_fitted %>%
+  mutate(high_touch = case_when(high_touch == TRUE ~ "High Touch",
+                                high_touch == FALSE ~ "Low Touch")) %>%
+  ggplot(aes(x = subject_covid_day, y = .epred)) +
+  #geom_point(data = m_mvbinom_scv2_time_fix_category_touch$data, aes(x = subject_covid_day, y = scv2_detected), color = "grey", alpha = 0.5) +
+  stat_lineribbon() +
+  facet_wrap(facets = ~ site_category + high_touch, scales = "fixed") +
+  #facet_wrap(facets = ~ site_category) +
+  scale_fill_brewer(palette = "Reds") +
+  labs(x = "Days after COVID-19 Diagnosis",
+       y = "Probability of SARS-CoV-2 Detection by RT-PCR",
+       fill = "Posterior Credible Interval") +
+  theme_bw() +
+  theme(strip.text = ggtext::element_markdown(color = "black", size = 8),
+        axis.text.x = ggtext::element_markdown(color = "black"),
+        axis.text.y = ggtext::element_markdown(color = "black"),
+        legend.position = "top",
+        #legend.background = element_rect(fill = "white", color = "black", size = 0.25),
+        strip.background = element_blank()) -> p_scv2_mvbinomial_subject_covid_day_site_category_touch
+p_scv2_mvbinomial_subject_covid_day_site_category_touch
+
+
+# p_scv2_mvbinomial_subject_covid_day_site_category_touch %>%
+#   ggsave(filename = "./figs/p_scv2_mvbinomial_subject_covid_day_site_category_touch.pdf", height = 5, width = 8, units = "in")
+# p_scv2_mvbinomial_subject_covid_day_site_category_touch %>%
+#   ggsave(filename = "./figs/p_scv2_mvbinomial_subject_covid_day_site_category_touch.png", height = 5, width = 8, units = "in", dpi = 600)
+# p_scv2_mvbinomial_subject_covid_day_site_category_touch %>%
+#   ggsave(filename = "./figs/p_scv2_mvbinomial_subject_covid_day_site_category_touch.svg", height = 5, width = 8, units = "in")
+
+
+#' ######################
+#' model comparison
+#' ######################
+loo::loo_compare(loo(m_mvbinom_scv2_time_fix_category_touch), loo(m_binom_scv2_time_mix_category_touch), loo(m_binom_scv2_time_mix_category)) %>%
+  identity() -> binom_time_category_touch_loo_comparison
+binom_time_category_touch_loo_comparison
+
+binom_time_category_touch_loo_comparison %>%
+  as_tibble(rownames = "model") %>%
+  gt()
+
+
+
+
+#' ####################################################
+#' generative model for SARS-CoV-2 contamination ~ days from COVID-19 diagnosis
+#' - elevated vs floor -- accounting for high-touch
+#' - hurdle quantity detected
+#' ####################################################
+
+dat_long %>%
+  # exclude bathroom sites and nursing sites (different distance scheme)
+  filter(grepl("bathroom|sink|toilet|nurse",site_descriptor) == FALSE) %>%
+  mutate(scv2_detected = !is.na(copies_max),
+         site_category = case_when(grepl("floor",site_descriptor) == TRUE ~ "floor",
+                                   grepl("floor",site_descriptor) == FALSE ~ "elevated"),
+         high_touch = touch == "High") %>%
+  #count(site_descriptor, site_category, high_touch)
+  select(subject_room_id, redcap_id, subject_room_day, subject_covid_day, subject_hosp_day, subject_covid_day, swab_site, unit, site_category, touch, high_touch, distance, copies_max, scv2_detected) %>%
+  mutate(redcap_id = paste0("decon_subject_", redcap_id)) %>%
+  mutate(site_category = stringr::str_to_title(gsub("_"," ",site_category))) %>%
+  distinct() %>%
+  identity() -> dat
+
+dat
+
+
+#' get prior
+dat %>%
+  mutate(copies_max = replace(copies_max, is.na(copies_max), 0)) %>%
+  select(copies_max, subject_covid_day, site_category, high_touch) %>%
+  mutate(subject_covid_day = scale(subject_covid_day)[,1]) %>%
+  brms::get_prior(data = ., formula = copies_max ~ 1 + subject_covid_day + site_category + high_touch,
+                  family = hurdle_lognormal()) %>%
+  gt::gt()
+
+
+#' run hurdle model
+# dat %>%
+#   mutate(copies_max = replace(copies_max, is.na(copies_max), 0)) %>%
+#   select(copies_max, subject_covid_day, site_category, high_touch) %>%
+#   mutate(subject_covid_day = scale(subject_covid_day)[,1]) %>%
+#   brm(formula = copies_max ~ 1 + subject_covid_day + site_category + high_touch,
+#       data = .,
+#       family = hurdle_lognormal(),
+#       chains = 4,
+#       cores = 4,
+#       control = list("adapt_delta" = 0.999, max_treedepth = 10),
+#       backend = "cmdstanr",
+#       seed = 16) -> m_mvhurdle_scv2_time_fix_category_touch
+# 
+# m_mvhurdle_scv2_time_fix_category_touch %>% write_rds(file = "./models/hurdle/m_mvhurdle_scv2_time_fix_category_touch.rds.gz", compress = "gz")
+m_mvhurdle_scv2_time_fix_category_touch <- read_rds(file = "./models/hurdle/m_mvhurdle_scv2_time_fix_category_touch.rds.gz")
+
+m_mvhurdle_scv2_time_fix_category_touch
+rstan::check_hmc_diagnostics(m_mvhurdle_scv2_time_fix_category_touch$fit)
+m_mvhurdle_scv2_time_fix_category_touch %>% pp_check() + scale_x_log10()
+
+m_mvhurdle_scv2_time_fix_category_touch %>%
+  posterior_summary() %>%
+  as_tibble(rownames = "param") %>%
+  gt::gt() %>%
+  gt::fmt_number(columns = 2:5, n_sigfig = 3)
+
+
+#' fitted
+m_mvhurdle_scv2_time_fix_category_touch$data %>%
+  as_tibble() %>%
+  expand(subject_covid_day = modelr::seq_range(subject_covid_day, n = 100),
+         site_category = unique(site_category),
+         high_touch = unique(high_touch)
+  ) %>%
+  filter(!(high_touch == TRUE & site_category == "Floor")) %>%
+  add_epred_draws(m_mvhurdle_scv2_time_fix_category_touch) %>%
+  mutate(subject_covid_day = subject_covid_day * sd(dat$subject_covid_day, na.rm = TRUE) + mean(dat$subject_covid_day, na.rm = TRUE)) %>%
+  identity() -> m_mvhurdle_scv2_time_fix_category_touch_fitted
+m_mvhurdle_scv2_time_fix_category_touch_fitted
+
+
+m_mvhurdle_scv2_time_fix_category_touch_fitted %>%
+  mutate(high_touch = case_when(high_touch == TRUE ~ "High Touch",
+                                high_touch == FALSE ~ "Low Touch")) %>%
+  ggplot(aes(x = subject_covid_day, y = .epred)) +
+  stat_lineribbon() +
+  geom_point(data = mutate(as_tibble(m_mvhurdle_scv2_time_fix_category_touch$data),
+                           subject_covid_day = subject_covid_day * sd(dat$subject_covid_day, na.rm = TRUE) + mean(dat$subject_covid_day, na.rm = TRUE),
+                           high_touch = case_when(high_touch == FALSE ~ "Low Touch",
+                                                  high_touch == TRUE ~ "High Touch")),
+             aes(x = subject_covid_day, y = copies_max), color = "grey", alpha = 0.5) +
+  facet_wrap(facets = ~ site_category + high_touch, scales = "fixed") +
+  #facet_wrap(facets = ~ site_category) +
+  scale_fill_brewer(palette = "Reds") +
+  scale_y_log10() +
+  labs(x = "Days after COVID-19 Diagnosis",
+       y = "Copies SARS-CoV-2 by RT-PCR",
+       fill = "Posterior Credible Interval") +
+  theme_bw() +
+  theme(strip.text = ggtext::element_markdown(color = "black", size = 8),
+        axis.text.x = ggtext::element_markdown(color = "black"),
+        axis.text.y = ggtext::element_markdown(color = "black"),
+        axis.title.x = ggtext::element_markdown(color = "black"),
+        axis.title.y = ggtext::element_markdown(color = "black"),
+        legend.position = "top",
+        #legend.background = element_rect(fill = "white", color = "black", size = 0.25),
+        strip.background = element_blank()) -> p_scv2_mvhurdle_subject_covid_day_site_category_touch
+p_scv2_mvhurdle_subject_covid_day_site_category_touch
+
+
+# p_scv2_mvhurdle_subject_covid_day_site_category_touch %>%
+#   ggsave(filename = "./figs/p_scv2_mvhurdle_subject_covid_day_site_category_touch.pdf", height = 5, width = 8, units = "in")
+# p_scv2_mvhurdle_subject_covid_day_site_category_touch %>%
+#   ggsave(filename = "./figs/p_scv2_mvhurdle_subject_covid_day_site_category_touch.png", height = 5, width = 8, units = "in", dpi = 600)
+# p_scv2_mvhurdle_subject_covid_day_site_category_touch %>%
+#   ggsave(filename = "./figs/p_scv2_mvhurdle_subject_covid_day_site_category_touch.svg", height = 5, width = 8, units = "in")
+
+
+#' ######################
+#' model comparison
+#' ######################
+loo::loo_compare(loo(m_mvhurdle_scv2_time_fix_category_touch), loo(m_hurdle_scv2_time_mix_category_touch), loo(m_hurdle_scv2_time_mix_category)) %>%
+  identity() -> hurdle_time_category_touch_loo_comparison
+hurdle_time_category_touch_loo_comparison
+
+hurdle_time_category_touch_loo_comparison %>%
+  as_tibble(rownames = "model") %>%
+  gt()
+
 
 
 
