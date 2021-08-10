@@ -19,15 +19,14 @@ dat_long
 
 dat_long %>%
   group_by(redcap_id) %>%
-  filter(subject_study_day == min(subject_study_day)) %>%
+  filter(subject_room_day == min(subject_room_day)) %>%
   ungroup() %>%
   identity() -> dat_first
 dat_first
 
 
 #' ####################################################
-#' generative model for SARS-CoV-2 contamination
-#' - initial sample only
+#' generative model for SARS-CoV-2 contamination ~ days since COVID diagnosis
 #' - elevated vs floor (no accounting for high-touch)
 #' - binomial probability of detection
 #' ####################################################
@@ -40,7 +39,8 @@ dat_long %>%
                                    grepl("floor",site_descriptor) == FALSE ~ "elevated"),
          high_touch = touch == "High") %>%
   #count(site_descriptor, site_category, high_touch)
-  select(redcap_id, subject_covid_day, subject_hosp_day, subject_covid_day, swab_site, unit, site_category, touch, high_touch, distance, copies_max, scv2_detected) %>%
+  select(subject_room_id, redcap_id, subject_room_day, subject_covid_day, subject_hosp_day, subject_covid_day, swab_site, unit, site_category, touch, high_touch, distance, copies_max, scv2_detected) %>%
+  mutate(redcap_id = paste0("decon_subject_", redcap_id)) %>%
   mutate(site_category = stringr::str_to_title(gsub("_"," ",site_category))) %>%
   distinct() %>%
   identity() -> dat
@@ -65,7 +65,7 @@ dat %>%
 #       family = bernoulli,
 #       chains = 4,
 #       cores = 4,
-#       control = list("adapt_delta" = 0.999, max_treedepth = 10),
+#       control = list("adapt_delta" = 0.99999, max_treedepth = 10),
 #       backend = "cmdstanr",
 #       seed = 16) -> m_binom_scv2_time_mix_category
 # 
@@ -91,7 +91,7 @@ m_binom_scv2_time_mix_category$data %>%
          #high_touch = unique(high_touch)
   ) %>%
   #filter(!(high_touch == TRUE & site_category == "Floor")) %>%
-  add_fitted_draws(m_binom_scv2_time_mix_category) %>%
+  add_epred_draws(m_binom_scv2_time_mix_category) %>%
   identity() -> m_binom_scv2_time_mix_category_fitted
 m_binom_scv2_time_mix_category_fitted
 
@@ -99,7 +99,7 @@ m_binom_scv2_time_mix_category_fitted
 m_binom_scv2_time_mix_category_fitted %>%
   #mutate(high_touch = case_when(high_touch == TRUE ~ "High Touch",
   #                              high_touch == FALSE ~ "Low Touch")) %>%
-  ggplot(aes(x = subject_covid_day, y = .value)) +
+  ggplot(aes(x = subject_covid_day, y = .epred)) +
   #geom_point(data = m_binom_scv2_time_mix_category$data, aes(x = subject_covid_day, y = scv2_detected), color = "grey", alpha = 0.5) +
   stat_lineribbon() +
   #facet_wrap(facets = ~ site_category + high_touch, scales = "fixed") +
@@ -130,8 +130,7 @@ p_scv2_binomial_subject_covid_day_site_category
 
 
 #' ####################################################
-#' generative model for SARS-CoV-2 contamination
-#' - initial sample only
+#' generative model for SARS-CoV-2 contamination ~ days from COVID diagnosis
 #' - elevated vs floor -- accounting for high-touch
 #' - binomial probability of detection
 #' ####################################################
@@ -152,7 +151,7 @@ dat %>%
 #       family = bernoulli,
 #       chains = 4,
 #       cores = 4,
-#       control = list("adapt_delta" = 0.9999, max_treedepth = 10),
+#       control = list("adapt_delta" = 0.999, max_treedepth = 10),
 #       backend = "cmdstanr",
 #       seed = 16) -> m_binom_scv2_time_mix_category_touch
 # 
@@ -178,7 +177,7 @@ m_binom_scv2_time_mix_category_touch$data %>%
          high_touch = unique(high_touch)
   ) %>%
   filter(!(high_touch == TRUE & site_category == "Floor")) %>%
-  add_fitted_draws(m_binom_scv2_time_mix_category_touch) %>%
+  add_epred_draws(m_binom_scv2_time_mix_category_touch) %>%
   identity() -> m_binom_scv2_time_mix_category_touch_fitted
 m_binom_scv2_time_mix_category_touch_fitted
 
@@ -186,7 +185,7 @@ m_binom_scv2_time_mix_category_touch_fitted
 m_binom_scv2_time_mix_category_touch_fitted %>%
   mutate(high_touch = case_when(high_touch == TRUE ~ "High Touch",
                                 high_touch == FALSE ~ "Low Touch")) %>%
-  ggplot(aes(x = subject_covid_day, y = .value)) +
+  ggplot(aes(x = subject_covid_day, y = .epred)) +
   #geom_point(data = m_binom_scv2_time_mix_category_touch$data, aes(x = subject_covid_day, y = scv2_detected), color = "grey", alpha = 0.5) +
   stat_lineribbon() +
   facet_wrap(facets = ~ site_category + high_touch, scales = "fixed") +
@@ -233,7 +232,8 @@ dat_long %>%
                                    grepl("floor",site_descriptor) == FALSE ~ "elevated"),
          high_touch = touch == "High") %>%
   #count(site_descriptor, site_category, high_touch)
-  select(redcap_id, subject_covid_day, subject_hosp_day, subject_covid_day, swab_site, unit, site_category, touch, high_touch, distance, copies_max, scv2_detected) %>%
+  select(subject_room_id, redcap_id, subject_room_day, subject_covid_day, subject_hosp_day, subject_covid_day, swab_site, unit, site_category, touch, high_touch, distance, copies_max, scv2_detected) %>%
+  mutate(redcap_id = paste0("decon_subject_", redcap_id)) %>%
   mutate(site_category = stringr::str_to_title(gsub("_"," ",site_category))) %>%
   distinct() %>%
   identity() -> dat
@@ -285,7 +285,7 @@ m_linear_scv2_time_mix_category$data %>%
          #high_touch = unique(high_touch)
   ) %>%
   #filter(!(high_touch == TRUE & site_category == "Floor")) %>%
-  add_fitted_draws(m_linear_scv2_time_mix_category) %>%
+  add_epred_draws(m_linear_scv2_time_mix_category) %>%
   mutate(subject_covid_day = subject_covid_day * sd(dat$subject_covid_day, na.rm = TRUE) + mean(dat$subject_covid_day, na.rm = TRUE)) %>%
   identity() -> m_linear_scv2_time_mix_category_fitted
 m_linear_scv2_time_mix_category_fitted
@@ -294,7 +294,7 @@ m_linear_scv2_time_mix_category_fitted
 m_linear_scv2_time_mix_category_fitted %>%
   #mutate(high_touch = case_when(high_touch == TRUE ~ "High Touch",
   #                              high_touch == FALSE ~ "Low Touch")) %>%
-  ggplot(aes(x = subject_covid_day, y = .value)) +
+  ggplot(aes(x = subject_covid_day, y = .epred)) +
   stat_lineribbon() +
   geom_point(data = mutate(as_tibble(m_linear_scv2_time_mix_category$data),
                            subject_covid_day = subject_covid_day * sd(dat$subject_covid_day, na.rm = TRUE) + mean(dat$subject_covid_day, na.rm = TRUE)),
@@ -329,8 +329,7 @@ p_scv2_linear_subject_covid_day_site_category
 
 
 #' ####################################################
-#' generative model for SARS-CoV-2 contamination
-#' - initial sample only
+#' generative model for SARS-CoV-2 contamination ~ days from COVID diagnosis
 #' - elevated vs floor -- accounting for high-touch
 #' - linear quantity detected
 #' ####################################################
@@ -343,7 +342,8 @@ dat_long %>%
                                    grepl("floor",site_descriptor) == FALSE ~ "elevated"),
          high_touch = touch == "High") %>%
   #count(site_descriptor, site_category, high_touch)
-  select(redcap_id, subject_covid_day, subject_hosp_day, subject_covid_day, swab_site, unit, site_category, touch, high_touch, distance, copies_max, scv2_detected) %>%
+  select(subject_room_id, redcap_id, subject_room_day, subject_covid_day, subject_hosp_day, subject_covid_day, swab_site, unit, site_category, touch, high_touch, distance, copies_max, scv2_detected) %>%
+  mutate(redcap_id = paste0("decon_subject_", redcap_id)) %>%
   mutate(site_category = stringr::str_to_title(gsub("_"," ",site_category))) %>%
   distinct() %>%
   identity() -> dat
@@ -369,7 +369,7 @@ dat %>%
 #       family = gaussian,
 #       chains = 4,
 #       cores = 4,
-#       control = list("adapt_delta" = 0.99999, max_treedepth = 10),
+#       control = list("adapt_delta" = 0.999, max_treedepth = 10),
 #       backend = "cmdstanr",
 #       seed = 16) -> m_linear_scv2_time_mix_category_touch
 # 
@@ -395,7 +395,7 @@ m_linear_scv2_time_mix_category_touch$data %>%
          high_touch = unique(high_touch)
   ) %>%
   filter(!(high_touch == TRUE & site_category == "Floor")) %>%
-  add_fitted_draws(m_linear_scv2_time_mix_category_touch) %>%
+  add_epred_draws(m_linear_scv2_time_mix_category_touch) %>%
   mutate(subject_covid_day = subject_covid_day * sd(dat$subject_covid_day, na.rm = TRUE) + mean(dat$subject_covid_day, na.rm = TRUE)) %>%
   identity() -> m_linear_scv2_time_mix_category_touch_fitted
 m_linear_scv2_time_mix_category_touch_fitted
@@ -404,7 +404,7 @@ m_linear_scv2_time_mix_category_touch_fitted
 m_linear_scv2_time_mix_category_touch_fitted %>%
   mutate(high_touch = case_when(high_touch == TRUE ~ "High Touch",
                                 high_touch == FALSE ~ "Low Touch")) %>%
-  ggplot(aes(x = subject_covid_day, y = .value)) +
+  ggplot(aes(x = subject_covid_day, y = .epred)) +
   stat_lineribbon() +
   geom_point(data = mutate(as_tibble(m_linear_scv2_time_mix_category_touch$data),
                            subject_covid_day = subject_covid_day * sd(dat$subject_covid_day, na.rm = TRUE) + mean(dat$subject_covid_day, na.rm = TRUE),
@@ -444,8 +444,7 @@ p_scv2_linear_subject_covid_day_site_category_touch
 #' #############################################
 
 #' ####################################################
-#' generative model for SARS-CoV-2 contamination
-#' - initial sample only
+#' generative model for SARS-CoV-2 contamination ~ days from COVID diagnosis
 #' - elevated vs floor (no accounting for high-touch)
 #' - hurdle quantity detected
 #' ####################################################
@@ -458,7 +457,8 @@ dat_long %>%
                                    grepl("floor",site_descriptor) == FALSE ~ "elevated"),
          high_touch = touch == "High") %>%
   #count(site_descriptor, site_category, high_touch)
-  select(redcap_id, subject_covid_day, subject_hosp_day, subject_covid_day, swab_site, unit, site_category, touch, high_touch, distance, copies_max, scv2_detected) %>%
+  select(subject_room_id, redcap_id, subject_room_day, subject_covid_day, subject_hosp_day, subject_covid_day, swab_site, unit, site_category, touch, high_touch, distance, copies_max, scv2_detected) %>%
+  mutate(redcap_id = paste0("decon_subject_", redcap_id)) %>%
   mutate(site_category = stringr::str_to_title(gsub("_"," ",site_category))) %>%
   distinct() %>%
   identity() -> dat
@@ -513,7 +513,7 @@ m_hurdle_scv2_time_mix_category$data %>%
          #high_touch = unique(high_touch)
   ) %>%
   #filter(!(high_touch == TRUE & site_category == "Floor")) %>%
-  add_fitted_draws(m_hurdle_scv2_time_mix_category) %>%
+  add_epred_draws(m_hurdle_scv2_time_mix_category) %>%
   mutate(subject_covid_day = subject_covid_day * sd(dat$subject_covid_day, na.rm = TRUE) + mean(dat$subject_covid_day, na.rm = TRUE)) %>%
   identity() -> m_hurdle_scv2_time_mix_category_fitted
 m_hurdle_scv2_time_mix_category_fitted
@@ -522,7 +522,7 @@ m_hurdle_scv2_time_mix_category_fitted
 m_hurdle_scv2_time_mix_category_fitted %>%
   #mutate(high_touch = case_when(high_touch == TRUE ~ "High Touch",
   #                              high_touch == FALSE ~ "Low Touch")) %>%
-  ggplot(aes(x = subject_covid_day, y = .value)) +
+  ggplot(aes(x = subject_covid_day, y = .epred)) +
   stat_lineribbon() +
   geom_point(data = mutate(as_tibble(m_hurdle_scv2_time_mix_category$data),
                            subject_covid_day = subject_covid_day * sd(dat$subject_covid_day, na.rm = TRUE) + mean(dat$subject_covid_day, na.rm = TRUE),
@@ -573,7 +573,8 @@ dat_long %>%
                                    grepl("floor",site_descriptor) == FALSE ~ "elevated"),
          high_touch = touch == "High") %>%
   #count(site_descriptor, site_category, high_touch)
-  select(redcap_id, subject_covid_day, subject_hosp_day, subject_covid_day, swab_site, unit, site_category, touch, high_touch, distance, copies_max, scv2_detected) %>%
+  select(subject_room_id, redcap_id, subject_room_day, subject_covid_day, subject_hosp_day, subject_covid_day, swab_site, unit, site_category, touch, high_touch, distance, copies_max, scv2_detected) %>%
+  mutate(redcap_id = paste0("decon_subject_", redcap_id)) %>%
   mutate(site_category = stringr::str_to_title(gsub("_"," ",site_category))) %>%
   distinct() %>%
   identity() -> dat
@@ -627,7 +628,7 @@ m_hurdle_scv2_time_mix_category_touch$data %>%
          high_touch = unique(high_touch)
   ) %>%
   filter(!(high_touch == TRUE & site_category == "Floor")) %>%
-  add_fitted_draws(m_hurdle_scv2_time_mix_category_touch) %>%
+  add_epred_draws(m_hurdle_scv2_time_mix_category_touch) %>%
   mutate(subject_covid_day = subject_covid_day * sd(dat$subject_covid_day, na.rm = TRUE) + mean(dat$subject_covid_day, na.rm = TRUE)) %>%
   identity() -> m_hurdle_scv2_time_mix_category_touch_fitted
 m_hurdle_scv2_time_mix_category_touch_fitted
@@ -636,7 +637,7 @@ m_hurdle_scv2_time_mix_category_touch_fitted
 m_hurdle_scv2_time_mix_category_touch_fitted %>%
   mutate(high_touch = case_when(high_touch == TRUE ~ "High Touch",
                                 high_touch == FALSE ~ "Low Touch")) %>%
-  ggplot(aes(x = subject_covid_day, y = .value)) +
+  ggplot(aes(x = subject_covid_day, y = .epred)) +
   stat_lineribbon() +
   geom_point(data = mutate(as_tibble(m_hurdle_scv2_time_mix_category_touch$data),
                            subject_covid_day = subject_covid_day * sd(dat$subject_covid_day, na.rm = TRUE) + mean(dat$subject_covid_day, na.rm = TRUE),
@@ -668,6 +669,16 @@ p_scv2_hurdle_subject_covid_day_site_category_touch
 #   ggsave(filename = "./figs/p_scv2_hurdle_subject_covid_day_site_category_touch.png", height = 5, width = 8, units = "in", dpi = 600)
 # p_scv2_hurdle_subject_covid_day_site_category_touch %>%
 #   ggsave(filename = "./figs/p_scv2_hurdle_subject_covid_day_site_category_touch.svg", height = 5, width = 8, units = "in")
+
+
+
+
+#' ############################
+#' MULTIVARIABLE MODELS to IMPROVE MODEL FIT
+#' ############################
+
+
+
 
 
 
