@@ -1,29 +1,276 @@
 ---
 #title: "Spatial and temporal effects on SARS-CoV-2 contamination of the healthcare environment"
 #author: "Brendan J. Kelly, MD, MS"
+bibliography: bib/references.bib
+csl: csl/infection-control-and-hospital-epidemiology.csl
 output: html_document
+css: style_helvetica_double.css
 ---
 
+```{r setup, echo=FALSE, eval=TRUE, include=FALSE, autodep=TRUE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(tidybayes)
+library(gt)
+```
 
 
-# Results
+## Title  
+Spatial and temporal effects on SARS-CoV-2 contamination of the healthcare environment  
+  
+## Abbreviated Title  
+SARS-CoV-2 Healthcare Contamination    
+  
+## Authors  
+Matthew J. Ziegler, MD, MS (1,2,3); Selamawit Bekele (2,3); Sean Loughrey, MS (2,3); Emily Reesey, MS (2,2); Elizabeth Huang (2,3); Pam Tolomeo, MPH (2,3); Ebbing Lautenbach, MD, MPH, MS (1,2,3); Brendan J. Kelly, MD, MS (1,2,3) for the CDC Prevention Epicenters Program  
+  
+## Affiliations  
+1 - Division of Infectious Diseases, Department of Medicine;   
+2 - Department of Biostatistics, Epidemiology, and Informatics;  
+3 - Center for Clinical Epidemiology and Biostatistics, Perelman School of Medicine, University of Pennsylvania, Philadelphia, PA    
+  
+## Corresponding Author Contact  
+Brendan J. Kelly, MD, MS - brendank@pennmedicine.upenn.edu  
+  
+## Authors' Contributions  
+MJZ - study design, data collection and analysis, manuscript;  
+SB - subject enrollment and specimen collection;  
+SL - specimen processing and analysis;  
+ER - specimen processing and analysis;  
+EH - specimen collection and processing;   
+PT - subject enrollment and specimen collection, manuscript;  
+MZD - study design, manuscript;  
+EL - study design, manuscript;  
+BJK - study design, data collection and analysis, manuscript;  
+    
+## Disclosures  
+The authors report no relevant disclosures.  
+  
+## Data Availability  
+Data, analysis scripts, and model code are available at github.com/bjklab.    
+  
+## Keywords  
+SARS-CoV-2, COVID-19, hospital microbiome    
+  
+### Acknowledgements:  
+This research, BJK, MJZ, and EL are supported in part by a CDC Cooperative Agreement FOA#CK16-004 "Epicenters for the Prevention of Healthcare Associated Infections”. BJK is supported by the National Institute for Allergy and Infectious Diseases (K23 AI121485 and L30 AI120149). MJZ is supported by the National Institute for Allergy and Infectious Diseases (K23 AI143925).   
 
-### Distance Effect Negligible
+### Disclosures:  
+The authors report no conflicts of interest.    
+  
+### Word Count:    
+?????       
+  
+  
+-----
+\newpage
+<P style = "page-break-before: always">
+  
+## Manuscript  
+  
+### Abstract  
+  
+* __Background__:        
+  
+* __Methods__:         
+  
+* __Results__:      
+    
+* __Conclusions__:       
+  
+  
+ <!-- -----
+\newpage
+<P style = "page-break-before: always">
+  
+### Importance  
+  
+If required by journal. -->   
+  
+  
+-----  
+\newpage
+<P style = "page-break-before: always">
+  
+### Introduction:    
+  
+Despite infection control measures, transmission of SARS-CoV-2 infection has been observed in the healthcare and hospital settings. In a recent study of SARS-CoV-2-infected and -uninfected patients inadvertently roomed together, 39% of exposed uninfected patients developed COVID-19. Risk of SARS-CoV-2 transmission was associated with source patients who had low cycle threshold (Ct), i.e., high viral load, in their diagnostic testing [@Karan2021-cm].  
+ 
+SARS-CoV-2 transmission can be mediated by droplets, aerosols, or fomites. Prior studies have demonstrated that SARS-CoV-2 extensively contaminates surfaces in the healthcare environment [@Morawska2021-mv]. But the spatial extent of contamination -- and how contamination changes during the course of hospitalization -- remain less well understood [@Mody2021-ag].  
+
+We have previously applied spatial mapping and systematic sampling to define how multidrug-resistant organisms cluster in the hospital environment [site pending ICHE manuscript]. We now extend the methods we have developed to understand how SARS-CoV-2 contamination is distributed spatially, and how it changes over time.  
+  
+  
+-----  
+\newpage
+<P style = "page-break-before: always">
+  
+  
+### Materials and Methods:  
+  
+* __Study Design, Setting, and Population__: We performed a prospective cohort study at the Hospital of the University of Pennsylvania (HUP), an academic medical center in Philadelphia, PA, USA. (IRB protocol #8).   
+  
+* __Causal Model__: We hypothesized that SARS-CoV-2 contamination would decay with physical distance from patient and with time from COVID-19 diagnosis. We also hypothesized that high-touch objects would be more frequently contaminated with SARS-CoV-2 RNA than low-touch objects.     
+  
+* __Specimen Collection and SARS-CoV-2 RT-PCR__:    
+   
+* __Distance Data Collection__: Distances from the environmental sampling site to the patient bed was recorded using a laser measuring device (Bosch GLM 20). Researchers positioned the laser measure at the head of the bed within the room and recorded distances to the in-room ...      
+  
+* __Definition of Exposures and Outcomes__:         
+  
+* __Statistical Methods__: Data were organized using R statistical software version 3.6.1 [@R_Core_Team2018-xo], and plots generated using the “ggplot2” package [@Wickham2016-eh]. We examined how (1) distance from the patient and (2) time since COVID-19 diagnosis relate to the probability of SARS-CoV-2 detection using a binomial model with a logit link. We also evaluated mixed-effects model incorporating a random effect for subjects to account for clustering of longitudinal data, and to evaluate inter-subject differences. Models were fit using Stan Hamiltonian Monte Carlo (HMC) version 2.21, via the "brms" package with default, weakly-informative priors [@Carpenter2017-ec; @Burkner2017-yr]. Prior predictive modeling was performed, and models were fit with 4 chains of 1000 iterations, confirmed with HMC diagnostics (no divergent iterations, Rhat statistic < 1.1 for all parameters, and E-BFMI > 0.2) [@McElreath2016-sf; @Gabry2019-le; @Gelman2020-sd]. We examined parameter distributions at 50%, 80%, and 95% posterior credible intervals to understand the relationship between exposure and outcome variables.  
+  
+* __Power and Sample Size__: We anticipated that the enrollment of ... subjects would permit ... with type 1 error less than 0.05.    
+  
+* __Availability of Data__: Data, analysis scripts, and model code are available at https://github.com/bjklab.  
+  
+  
+-----  
+\newpage
+<P style = "page-break-before: always">
+  
+  
+### Results:  
+  
+* __Characteristics of subjects hospitalized for COVID-19 during the second (fall 2020) wave__: ... **Table 1** shows ....        
+  
+* __SARS-CoV-2 RNA Environmental Contamination Varies with Surface Type But Not Distance from Patient__: We ... **Figure 1** ....      
+  
+* __SARS-CoV-2 RNA Environmental Contaminations Decays During Prolonged Hospitalization__: We ...           
+  
+* __SARS-CoV-2 Contamination of the Floor Increases with Pandemic Wave Duration__: We found... **Figure 2** ....    
+  
+* __SARS-CoV-2 Contamination of High-Touch Objects Depends on Subject Characteristics__: We found... **Table 2** ....    
+
+  
+  
+-----  
+\newpage
+<P style = "page-break-before: always">
+  
+  
+### Discussion:  
+  
+We sought to define  .  
+  
+We found  .  
+  
+The significance  .  
+  
+Our study has several limitations.  .     
+  
+In conclusion,   .  
+      
+  
+  
+  
+  
+-----
+\newpage
+<P style = "page-break-before: always">
+  
+  
+### Tables:  
+  
+#### Table 1:   
+  
+```{r table1, eval=TRUE, autodep=TRUE, error=FALSE, message=FALSE, warning=FALSE, fig.align='center'}
 
 
-### Decay over Time
+```
+  
+  
+__Table 1: Baseline characteristics.__ .  
+  
+  
+  
+#### Table 2:   
+  
+```{r table2, eval=TRUE, autodep=TRUE, error=FALSE, message=FALSE, warning=FALSE, fig.align='center'}
 
 
-### Heterogeneity among Subjects in Probability of Detection
+```
+  
+  
+__Table 2: Features that increase risk of high-touch object contamination.__ .  
+  
 
 
 
-### Total Study Day (i.e., Time Into Second Wave) Accounts for Floor Detection Probability
 
 
-### What Subject-Level Factors Account for Detection Among High-Touch Elevated Sites? 
+  
+-----  
+\newpage
+<P style = "page-break-before: always">
+  
+### Figures:  
+  
+#### Figure 1:  
+  
+  
+```{r fig1, eval=TRUE, autodep=TRUE, fig.align='center', out.width='90%'}
+knitr::include_graphics(path = "./figs/p_combined_distance_time_unadjusted.png")
+```
+  
+  
+__Figure 1: Spatial and temporal effects on SARS-CoV-2 RNA contamination in the healthcare environment.__     
+  
+  
+-----  
+\newpage
+<P style = "page-break-before: always">
+  
+#### Figure 2:  
+  
+```{r fig2, eval=TRUE, autodep=TRUE, fig.align='center', out.width='90%'}
+knitr::include_graphics(path = "./figs/p_combined_subject_wave_time_adjusted.png")
+```
+  
+  
+__Figure 2: Variation in temporal effects and influence of pandemic duration.__ .         
+  
+  
+-----  
+\newpage
+<P style = "page-break-before: always">
+  
+  
+  
+### Supplemental Figures:   
+  
+#### Supplemental Figure 1:  
+  
+```{r sfig1, eval=TRUE, autodep=TRUE, fig.align='center', out.width='60%'}
+#knitr::include_graphics(path = "")
+```
+  
+  
+__Supplemental Figure 1: Figure caption__          
+  
+  
+-----
+\newpage
+<P style = "page-break-before: always">
+  
+  
+## References  
+  
+<div id="refs"></div>
+  
+  
 
+  
+-----
+\newpage
+<P style = "page-break-before: always">
 
+  
+## R Session Information  
+  
+```{r session_info, eval=TRUE, autodep=TRUE}
+sessionInfo()
+```
 
 
 
