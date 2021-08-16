@@ -1,7 +1,29 @@
 ---
-title: "Spatial and temporal decay of SARS-CoV-2 environmental contamination of the healthcare environment"
-author: "Brendan J. Kelly, MD, MS"
-date: "7/19/2021"
+#title: "Spatial and temporal effects on SARS-CoV-2 contamination of the healthcare environment"
+#author: "Brendan J. Kelly, MD, MS"
 output: html_document
 ---
+
+
+
+# Results
+
+### Distance Effect Negligible
+
+
+### Decay over Time
+
+
+### Heterogeneity among Subjects in Probability of Detection
+
+
+
+### Total Study Day (i.e., Time Into Second Wave) Accounts for Floor Detection Probability
+
+
+### What Subject-Level Factors Account for Detection Among High-Touch Elevated Sites? 
+
+
+
+
 

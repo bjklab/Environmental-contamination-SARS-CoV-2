@@ -1074,12 +1074,13 @@ m_mvbinom_scv2_distance_category_touch_mix_subject_fitted %>%
   pivot_wider(id_cols = c(subject_room_id, numeric_id), names_from = site_category, values_from = .epred) %>%
   left_join(summarise(group_by(dat_long, subject_room_id), total_study_day = min(total_study_day, na.rm = TRUE), subject_room_day = min(subject_room_day, na.rm = TRUE), unit = unit[1]), by = "subject_room_id") %>%
   #mutate(numeric_id = replace(numeric_id, Floor <= 0.75 | Elevated <= 0.75, NA)) %>%
-  ggplot(data = ., aes(x = Floor, y = Elevated, color = subject_room_id, label = numeric_id)) +
-  #geom_point() +
-  geom_point(shape = 21, color = "black") +
+  ggplot(data = ., aes(x = Floor, y = Elevated, color = total_study_day, label = numeric_id)) +
+  geom_point() +
+  #geom_point(shape = 21, color = "black") +
   #ggrepel::geom_text_repel(color = "black", max.overlaps = 50) +
   coord_equal(xlim = c(0,1), ylim = c(0,1)) +
   #colorspace::scale_color_discrete_sequential() +
+  scale_color_viridis_c(option = "plasma") +
   labs(x = "Probability of SARS-CoV-2<br>Detection on Floor",
        y = "Probability of SARS-CoV-2<br>Detection on High-Touch Elevated",
   ) +
@@ -1089,7 +1090,7 @@ m_mvbinom_scv2_distance_category_touch_mix_subject_fitted %>%
         axis.text.y = ggtext::element_markdown(color = "black"),
         axis.title.x = ggtext::element_markdown(color = "black"),
         axis.title.y = ggtext::element_markdown(color = "black"),
-        legend.position = "none",
+        #legend.position = "none",
         #legend.background = element_rect(fill = "white", color = "black", size = 0.25),
         strip.background = element_blank())
 
