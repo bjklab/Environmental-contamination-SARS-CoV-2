@@ -8,10 +8,56 @@ css: style_helvetica_double.css
 ---
 
 ```{r setup, echo=FALSE, eval=TRUE, include=FALSE, autodep=TRUE}
+
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 library(tidyverse)
 library(tidybayes)
 library(gt)
+
+read_csv("./data/dat_long.csv") %>%
+  identity() -> dat_long
+dat_long
+
+
+dat_long %>%
+  group_by(subject_room_id) %>%
+  filter(subject_room_day == min(subject_room_day)) %>%
+  ungroup() %>%
+  identity() -> dat_first
+dat_first
+
+dat_long %>%
+  # exclude bathroom sites and nursing sites (different distance scheme)
+  filter(grepl("bathroom|sink|toilet|nurse",site_descriptor) == FALSE) %>%
+  mutate(scv2_detected = !is.na(copies_max),
+         site_category = case_when(grepl("floor",site_descriptor) == TRUE ~ "floor",
+                                   grepl("floor",site_descriptor) == FALSE ~ "elevated"),
+         high_touch = touch == "High") %>%
+  #count(site_descriptor, site_category, high_touch)
+  select(subject_room_id, redcap_id, subject_room_day, subject_covid_day, subject_hosp_day, total_study_day, swab_site, unit, site_category, touch, high_touch, distance, copies_max, scv2_detected) %>%
+  mutate(redcap_id = paste0("decon_subject_", redcap_id)) %>%
+  mutate(site_category = stringr::str_to_title(gsub("_"," ",site_category))) %>%
+  distinct() %>%
+  identity() -> dat
+
+m_mvbinom_scv2_distance_fix_category_touch <- read_rds(file = "./models/binomial/m_mvbinom_scv2_distance_fix_category_touch.rds.gz")
+
+m_mvbinom_scv2_time_fix_category_touch <- read_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch.rds.gz")
+
+m_mvbinom_scv2_time_category_touch_mix_subject <- read_rds(file = "./models/binomial/m_mvbinom_scv2_time_category_touch_mix_subject.rds.bz2")
+
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave <- read_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch_adjust_wave.rds.gz")
+
+tibble(model = list(m_mvbinom_scv2_distance_fix_category_touch, m_mvbinom_scv2_time_fix_category_touch, m_mvbinom_scv2_time_category_touch_mix_subject, m_mvbinom_scv2_time_fix_category_touch_adjust_wave), model_name = c("Distance Fixed", "Time Fixed", "Time Subject Random", "Time Pandemic Wave Adjusted")) %>%
+  mutate(model_summary = map(model, .f = ~ brms::posterior_summary(.x) %>% as_tibble(rownames = "param"))) %>%
+  select(model_name, model_summary) %>%
+  unnest(cols = c(model_summary)) %>%
+  mutate_if(.predicate = ~ is.numeric(.x), .funs = list("exp" = ~ exp(.x))) %>%
+  identity() -> m_combined_summary
+
+
+
+
 ```
 
 
@@ -132,11 +178,11 @@ We have previously applied spatial mapping and systematic sampling to define how
   
 ### Results:  
   
-* __Characteristics of subjects hospitalized for COVID-19 during the second (fall 2020) wave__: ... **Table 1** shows ....        
+* __Characteristics of subjects hospitalized for COVID-19 during the second (fall 2020) wave__: We collected `r nrow(dat)` specimens from `r nrow(count(dat,subject_room_id))` unique subject-room pairs, comprising `r nrow(count(dat,redcap_id))` unique subjects (i.e., `r nrow(filter(count(distinct(select(dat,subject_room_id,redcap_id)),redcap_id),n>1))` subjects were transferred at least once during the observation period). The median number of sampling events from each subject-room pair was `r round(mean(count(distinct(select(dat, subject_room_id, subject_room_day)), subject_room_id)$n, na.rm = TRUE),2)` (SD `r round(sd(count(distinct(select(dat, subject_room_id, subject_room_day)), subject_room_id)$n, na.rm = TRUE),2)`). **Table 1** summarizes the environmental surfaces sampled, whether they were high-touch or low-touch, and proportion of each specimen type from which SARS-CoV-2 RNA was detected by RT-PCR....        
   
-* __SARS-CoV-2 RNA Environmental Contamination Varies with Surface Type But Not Distance from Patient__: We ... **Figure 1** ....      
+* __SARS-CoV-2 RNA Environmental Contamination Varies with Surface Type But Not Distance from Patient__: We evaluated the relationship between the distance from the patient's head of the bed and the probability of detecting SARS-CoV-2 on environmental surfaces. There was no significant relationship between distance and the probability of SARS-CoV-2 detection, in contrast to prior studies of MDRO organisms [site ICEMAN ICHE paper], but the suface type was significantly associated with the probability of detection. Floor surfaces had an odds ratio of `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Estimate_exp) %>% round(.,2)` (95% CrI `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Q2.5_exp) %>% round(.,2)` to `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Q97.5_exp) %>% round(.,2)`) of SARS-CoV-2 detection, relative to elevated surfaces. High-touch elevated surfaces had an odds ratio of `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Estimate_exp) %>% round(.,2)` (95% CrI `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Q2.5_exp) %>% round(.,2)` to `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Q97.5_exp) %>% round(.,2)`) of SARS-CoV-2 detection, relative to low-touch elevated surfaces. **Figure 1A** depicts the results of a multivariable model relating distance from patient, surface location, and whether the surface was high-touch to the probability of SARS-CoV-2 detection.         
   
-* __SARS-CoV-2 RNA Environmental Contaminations Decays During Prolonged Hospitalization__: We ...           
+* __SARS-CoV-2 RNA Environmental Contamination Decays During Prolonged Hospitalization__: We ...           
   
 * __SARS-CoV-2 Contamination of the Floor Increases with Pandemic Wave Duration__: We found... **Figure 2** ....    
   
@@ -176,11 +222,32 @@ In conclusion,   .
   
 ```{r table1, eval=TRUE, autodep=TRUE, error=FALSE, message=FALSE, warning=FALSE, fig.align='center'}
 
+dat %>%
+  left_join(distinct(select(dat_long, swab_site, site_descriptor)), by = "swab_site") %>%
+  mutate(high_touch = case_when(high_touch == TRUE ~ "High Touch",
+                                high_touch == FALSE ~ "Low Touch")) %>%
+  mutate(site_descriptor = stringr::str_to_title(string = gsub("_"," ",gsub("1|2","",site_descriptor)))) %>%
+  group_by(site_category, site_descriptor, high_touch) %>%
+  summarise(unique_subjects = n_distinct(subject_room_id),
+            unique_specimens = n(),
+            prop_positive = sum(!is.na(copies_max)) / n()) %>%
+  ungroup() %>%
+  arrange(desc(prop_positive)) %>%
+  gt::gt() %>%
+  gt::cols_label(site_category = "Height", site_descriptor = "Location", high_touch = html("Contact"), prop_positive = html("SARS-CoV-2<br>Detected"), unique_subjects = html("Subjects<br>Sampled"), unique_specimens = html("Surfaces<br>Sampled")) %>%
+  gt::fmt_percent(columns = prop_positive, decimals = 1) %>%
+  identity() -> dat_gt
+dat_gt
+
+dat_gt %>%
+  gt::as_raw_html() %>%
+  write_lines("./tabs/surfaces_sampled.html")
+
 
 ```
   
   
-__Table 1: Baseline characteristics.__ .  
+__Table 1: Hospital environment features sampled and proportion with detectable SARS-CoV-2 RNA.__ .  
   
   
   
@@ -192,7 +259,7 @@ __Table 1: Baseline characteristics.__ .
 ```
   
   
-__Table 2: Features that increase risk of high-touch object contamination.__ .  
+__Table 2: Subject characteristics that increase risk of high-touch object contamination.__ .  
   
 
 
