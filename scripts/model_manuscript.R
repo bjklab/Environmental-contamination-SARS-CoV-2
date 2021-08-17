@@ -420,7 +420,7 @@ m_mvbinom_scv2_time_category_touch_mix_subject_fitted %>%
   colorspace::scale_color_continuous_sequential(palette = "YlGnBu") +
   labs(x = "Days after COVID-19 Diagnosis",
        y = "Probability of SARS-CoV-2<br>Detection by RT-PCR",
-       color = "Days from<br>Start of<br>Enrollment") +
+       color = "Days from<br>Start of<br>Local<br>COVID-19<br>Wave") +
   theme_bw() +
   theme(strip.text = ggtext::element_markdown(color = "black", size = 10),
         axis.text.x = ggtext::element_markdown(color = "black"),
@@ -556,7 +556,7 @@ m_mvbinom_scv2_time_fix_category_touch_adjust_wave_fitted %>%
   stat_lineribbon() +
   facet_wrap(facets = ~ site_category + high_touch, scales = "fixed") +
   #facet_wrap(facets = ~ site_category) +
-  scale_fill_brewer(palette = "Purples") +
+  scale_fill_brewer(palette = "Blues") +
   scale_y_continuous(limits = c(0,1)) +
   labs(x = "Days from Start of Second COVID-19 Wave",
        y = "Probability of SARS-CoV-2<br>Detection by RT-PCR",
@@ -592,7 +592,7 @@ p_scv2_mvbinomial_subject_covid_day_site_category_touch_adjust_wave
 
 #' patchwork plot joining fixed-effects and random-subject-effects models
 
-((p_scv2_mvbinomial_distance_site_category_touch_mix_subject_lines) / 
+((p_scv2_mvbinomial_time_site_category_touch_mix_subject_lines) / 
     (p_scv2_mvbinomial_subject_covid_day_site_category_touch_adjust_wave)) + #theme(strip.text = element_blank()))) +
   #patchwork::plot_layout(guides = 'collect') +
   patchwork::plot_annotation(tag_levels = "A") -> p_combined_subject_wave_time_adjusted

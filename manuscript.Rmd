@@ -12,6 +12,7 @@ css: style_helvetica_double.css
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 library(tidyverse)
 library(tidybayes)
+library(glue)
 library(gt)
 
 read_csv("./data/dat_long.csv") %>%
@@ -178,13 +179,13 @@ We have previously applied spatial mapping and systematic sampling to define how
   
 ### Results:  
   
-* __Characteristics of subjects hospitalized for COVID-19 during the second (fall 2020) wave__: We collected `r nrow(dat)` specimens from `r nrow(count(dat,subject_room_id))` unique subject-room pairs, comprising `r nrow(count(dat,redcap_id))` unique subjects (i.e., `r nrow(filter(count(distinct(select(dat,subject_room_id,redcap_id)),redcap_id),n>1))` subjects were transferred at least once during the observation period). The median number of sampling events from each subject-room pair was `r round(mean(count(distinct(select(dat, subject_room_id, subject_room_day)), subject_room_id)$n, na.rm = TRUE),2)` (SD `r round(sd(count(distinct(select(dat, subject_room_id, subject_room_day)), subject_room_id)$n, na.rm = TRUE),2)`). **Table 1** summarizes the environmental surfaces sampled, whether they were high-touch or low-touch, and proportion of each specimen type from which SARS-CoV-2 RNA was detected by RT-PCR....        
+* __Characteristics of subjects hospitalized for COVID-19 during the second (fall 2020) wave__: We collected `r nrow(dat)` specimens from `r nrow(count(dat,subject_room_id))` unique subject-room pairs, comprising `r nrow(count(dat,redcap_id))` unique subjects (i.e., `r nrow(filter(count(distinct(select(dat,subject_room_id,redcap_id)),redcap_id),n>1))` subjects were transferred at least once during the observation period). The median number of sampling events from each subject-room pair was `r round(mean(count(distinct(select(dat, subject_room_id, subject_room_day)), subject_room_id)$n, na.rm = TRUE),2)` (SD `r round(sd(count(distinct(select(dat, subject_room_id, subject_room_day)), subject_room_id)$n, na.rm = TRUE),2)`). **Table 1** summarizes the environmental surfaces sampled, whether they were high-touch or low-touch, the proportion of each specimen type from which SARS-CoV-2 RNA was detected by RT-qPCR, and the SARS-CoV-2 copy numbers measured. We did not observe significant differences in copy numbers across the surface types, but the proportion with detectable SARS-CoV-2 did vary widely.           
   
 * __SARS-CoV-2 RNA Environmental Contamination Varies with Surface Type But Not Distance from Patient__: We evaluated the relationship between the distance from the patient's head of the bed and the probability of detecting SARS-CoV-2 on environmental surfaces. There was no significant relationship between distance and the probability of SARS-CoV-2 detection, in contrast to prior studies of MDRO organisms [site ICEMAN ICHE paper], but the suface type was significantly associated with the probability of detection. Floor surfaces had an odds ratio of `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Estimate_exp) %>% round(.,2)` (95% CrI `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Q2.5_exp) %>% round(.,2)` to `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Q97.5_exp) %>% round(.,2)`) of SARS-CoV-2 detection, relative to elevated surfaces. High-touch elevated surfaces had an odds ratio of `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Estimate_exp) %>% round(.,2)` (95% CrI `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Q2.5_exp) %>% round(.,2)` to `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Q97.5_exp) %>% round(.,2)`) of SARS-CoV-2 detection, relative to low-touch elevated surfaces. **Figure 1A** depicts the results of a multivariable model relating distance from patient, surface location, and whether the surface was high-touch to the probability of SARS-CoV-2 detection.         
   
-* __SARS-CoV-2 RNA Environmental Contamination Decays During Prolonged Hospitalization__: We ...           
+* __SARS-CoV-2 RNA Environmental Contamination Decays During Prolonged Hospitalization__: We evaluated the effect of time from COVID-19 diagnosis on the detection of SARS-CoV-2 RNA in the hospital environment via a multivariable logistic regression model relating time from COVID-19 diagnosis, surface location, and whether the surface was high-touch to the probability of SARS-CoV-2 detection. We found that the probability of detection decreased as time from COVID-19 diagnosis increased, with OR `r m_combined_summary %>% filter(model_name == "Time Fixed" & param == "b_subject_covid_day") %>% pull(Estimate_exp) %>% round(.,2)` (95% CrI `r m_combined_summary %>% filter(model_name == "Time Fixed" & param == "b_subject_covid_day") %>% pull(Q2.5_exp) %>% round(.,2)` to `r m_combined_summary %>% filter(model_name == "Time Fixed" & param == "b_subject_covid_day") %>% pull(Q97.5_exp) %>% round(.,2)`) per day since COVID-19 diagnosis. The most prominent effects were observed on high-touch elevated surfaces and floor surfaces (**Figure 1B**).             
   
-* __SARS-CoV-2 Contamination of the Floor Increases with Pandemic Wave Duration__: We found... **Figure 2** ....    
+* __SARS-CoV-2 Contamination of the Floor Increases with Pandemic Wave Duration__: To understand how subjects differed in the effect of time from COVID-19 diagnosis on SARS-CoV-2 contamination of the hospital environment, we re-fit the above model with the addition of random intercepts and slopes to account for subject-level differences. **Figure 2A** depicts the best estimate of the effect of time from COVID-19 diagnosis on the contamination in each subject's hospital room. In the figure, the lines representing each subject are colored by when they were enrolled during the course of the local, second-wave COVID-19 case surge. We observed that the contamination of high-touch elevated surfaces did not appear to relate to time from the start of the local case surge. However, contamination of floor surfaces appeared to be greater among subjects enrolled later in the course of the local case surge. To investigate this further, we added an interaction term to the model and found that each day since the start of the start of the local second wave increased the contamination of floor surfaces with OR `r m_combined_summary %>% filter(model_name == "Time Pandemic Wave Adjusted" & param == "b_site_categoryFloor:total_study_day") %>% pull(Estimate_exp) %>% round(.,2)` (95% CrI `r m_combined_summary %>% filter(model_name == "Time Pandemic Wave Adjusted" & param == "b_site_categoryFloor:total_study_day") %>% pull(Q2.5_exp) %>% round(.,2)` to `r m_combined_summary %>% filter(model_name == "Time Pandemic Wave Adjusted" & param == "b_site_categoryFloor:total_study_day") %>% pull(Q97.5_exp) %>% round(.,2)`) (**Figure 2B**).        
   
 * __SARS-CoV-2 Contamination of High-Touch Objects Depends on Subject Characteristics__: We found... **Table 2** ....    
 
@@ -230,11 +231,16 @@ dat %>%
   group_by(site_category, site_descriptor, high_touch) %>%
   summarise(unique_subjects = n_distinct(subject_room_id),
             unique_specimens = n(),
-            prop_positive = sum(!is.na(copies_max)) / n()) %>%
+            prop_positive = sum(!is.na(copies_max)) / n(),
+            med_copies = median(log10(copies_max), na.rm = TRUE),
+            q25_copies = quantile(log10(copies_max), probs = 0.25, na.rm = TRUE),
+            q75_copies = median(log10(copies_max),  probs = 0.75, na.rm = TRUE),
+            copies_summary = glue("{round(med_copies,1)} ({round(q25_copies,1)} - {round(q75_copies,1)})")) %>%
   ungroup() %>%
   arrange(desc(prop_positive)) %>%
+  select(- contains("_copies")) %>%
   gt::gt() %>%
-  gt::cols_label(site_category = "Height", site_descriptor = "Location", high_touch = html("Contact"), prop_positive = html("SARS-CoV-2<br>Detected"), unique_subjects = html("Subjects<br>Sampled"), unique_specimens = html("Surfaces<br>Sampled")) %>%
+  gt::cols_label(site_category = "Height", site_descriptor = "Location", high_touch = html("Contact"), unique_subjects = html("Subjects<br>Sampled"), unique_specimens = html("Surfaces<br>Sampled"), prop_positive = html("SARS-CoV-2<br>Detected"), copies_summary = html("Median (IQR) log<sub>10</sub><br>Copies by RT-qPCR")) %>%
   gt::fmt_percent(columns = prop_positive, decimals = 1) %>%
   identity() -> dat_gt
 dat_gt
@@ -281,7 +287,8 @@ knitr::include_graphics(path = "./figs/p_combined_distance_time_unadjusted.png")
 ```
   
   
-__Figure 1: Spatial and temporal effects on SARS-CoV-2 RNA contamination in the healthcare environment.__     
+__Figure 1: Spatial and temporal effects on SARS-CoV-2 RNA contamination in the healthcare environment.__ (A) Distance from the head of the patient's bed is shown on the horizontal axis. The vertical axis depicts the probability of SARS-CoV-2 detection by RT-qPCR according to a logistic regression model incorporating the surface elevation and touch. (B) Days from diagnosis with COVID-19 are shown on the horizontal axis. The vertical axis depicts the probability of SARS-CoV-2 detection by RT-qPCR according to a logistic regression model incorporating the surface elevation and touch. For both plots, the black line shows the best estimate, and shading indicates 50%, 80%, and 95% posterior credible intervals.      
+      
   
   
 -----  
@@ -295,7 +302,7 @@ knitr::include_graphics(path = "./figs/p_combined_subject_wave_time_adjusted.png
 ```
   
   
-__Figure 2: Variation in temporal effects and influence of pandemic duration.__ .         
+__Figure 2: Variation in temporal effects and influence of pandemic duration.__ (A) Days from diagnosis with COVID-19 are shown on the horizontal axis. The vertical axis depicts the probability of SARS-CoV-2 detection by RT-qPCR according to a logistic regression model incorporating the site elevation and touch, with random subject-level effects. Each line represents the best estimate for a single subjects; lines are colored according to the number of days from the start of the local COVID-19 second case wave. (B) Days from the local start of the second COVID-19 wave are shown on the horizontal axis. The vertical axis depicts the probability of SARS-CoV-2 detection by RT-qPCR according to a logistic regression model incorporating the days from COVID-19 diagnosis, surface elevation, and touch, with an interaction term between the days from the local start of the second COVID-19 wave and the surface type. The black line shows the best estimate, and shading indicates 50%, 80%, and 95% posterior credible intervals.               
   
   
 -----  
