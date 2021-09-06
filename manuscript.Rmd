@@ -155,22 +155,23 @@ We have previously applied spatial mapping and systematic sampling to define how
   
 ### Materials and Methods:  
   
-* __Study Design, Setting, and Population__: We performed a prospective cohort study at the Hospital of the University of Pennsylvania (HUP), an academic medical center in Philadelphia, PA, USA. (IRB protocol #8).   
+* __Study Design, Setting, and Population__: We performed a prospective cohort study at the Hospital of the University of Pennsylvania (HUP), an academic medical center in Philadelphia, PA, USA. (IRB protocol #843273). Patients with COVID-19 were housed on multiple hospital units over the course of the study according to bed availability. All rooms underwent daily cleaning, according to hospital protocol. Environmental services (EVS) staff used disposable disinfectant wipes (quaternary ammonium disinfectant) for use on high-touch objects (one wipe per surface). Floors were cleaned using a microfiber mop and a chlorine-based disinfectant (sodium dichloroisocyanurate). 
   
 * __Causal Model__: We hypothesized that SARS-CoV-2 contamination would decay with physical distance from patient and with time from COVID-19 diagnosis. We also hypothesized that high-touch objects would be more frequently contaminated with SARS-CoV-2 RNA than low-touch objects.     
   
-* __Specimen Collection and SARS-CoV-2 RT-PCR__:    
+* __Specimen Collection and SARS-CoV-2 RT-PCR__: COVID-19 patient rooms were swabbed longitudinally until day 28 or patient discharge from the hospital (i.e., hospital days 1,2,7,14,21,and 28). Longitudinal sampling continued if the patient was removed from COVID-19 isolation precautions or the patient transferred to a new hospital room. Multiple surfaces were swabbed within each patient room using a Copan FLOQ(TM) swab and a sterile template (20cm2). Specific surfaces are listed in Table 1. Swabs were immediately placed into buffered AVL and frozen prior to further processing. Specimens then underwent RNA extraction and RT-PCR targeting the SARS-CoV-2 N1 region in triplicate.
    
-* __Distance Data Collection__: Distances from the environmental sampling site to the patient bed was recorded using a laser measuring device (Bosch GLM 20). Researchers positioned the laser measure at the head of the bed within the room and recorded distances to the in-room ...      
+* __Distance Data Collection__: Distance from the environmental sampling site to the patient's head of bed was recorded using a laser measuring device (Bosch GLM 20). Templates were affixed to each surface and the linear distance from the patient's head of bed to the sample site was measured.
   
-* __Definition of Exposures and Outcomes__:         
+* __Definition of Exposures and Outcomes__: 
+Patient rooms were eligible for inclusion in the study if the occupant had a positive test for SARS-CoV-2 within the prior 7 days and was admitted to a new patient room with COVID-19 isolation precautions. The primary study outcome of interest, detection of SARS-CoV-2 by PCR assay, was determined by detection of any quantifiable RNA.
+  
   
 * __Statistical Methods__: Data were organized using R statistical software version 3.6.1 [@R_Core_Team2018-xo], and plots generated using the “ggplot2” package [@Wickham2016-eh]. We examined how (1) distance from the patient and (2) time since COVID-19 diagnosis relate to the probability of SARS-CoV-2 detection using a binomial model with a logit link. We also evaluated mixed-effects model incorporating a random effect for subjects to account for clustering of longitudinal data, and to evaluate inter-subject differences. Models were fit using Stan Hamiltonian Monte Carlo (HMC) version 2.21, via the "brms" package with default, weakly-informative priors [@Carpenter2017-ec; @Burkner2017-yr]. Prior predictive modeling was performed, and models were fit with 4 chains of 1000 iterations, confirmed with HMC diagnostics (no divergent iterations, Rhat statistic < 1.1 for all parameters, and E-BFMI > 0.2) [@McElreath2016-sf; @Gabry2019-le; @Gelman2020-sd]. We examined parameter distributions at 50%, 80%, and 95% posterior credible intervals to understand the relationship between exposure and outcome variables.  
   
-* __Power and Sample Size__: We anticipated that the enrollment of ... subjects would permit ... with type 1 error less than 0.05.    
+* __Power and Sample Size__: We anticipated that the enrollment of a minumum of 100 subjects would permit detection of a minimum of a 10% decrease probability of surface detection between distance groups with type 1 error less than 0.05.    
   
 * __Availability of Data__: Data, analysis scripts, and model code are available at https://github.com/bjklab.  
-  
   
 -----  
 \newpage
@@ -198,14 +199,14 @@ We have previously applied spatial mapping and systematic sampling to define how
   
 ### Discussion:  
   
-We sought to define  .  
+We sought to define the impact of time and distance on SARS-CoV-2 surface contamination through longitudinal sampling of surfaces within COVID-19 patient rooms. We found that distance from the patient's head of bed did not have a significant impact on the probability of detection of SARS-CoV-2 RNA. We had hypothesized that the probability of RNA detection with decrease with distance. However, we found that detection did not vary significantly among any surface group with increased distance. This is likely related to two factors 1) the relatively small size of patient rooms and 2) the physical spread of viral RNA through touch. We observed large differences in the probability of detecting surface contamination by surface type. Floors had high probability of contamination, which did not vary throughout the room. This is likely related to both the role of patient and HCP feet as well as the physical action of mopping which spread body fluids containing viral RNA within the patient's room. In contrast, walls had significantly lower probability of contamination. This may be due to the decreased settling of respiratory droplets on vertical surfaces. This finding matches previous description of high probability of floor contamination relative to other surfaces [@Chia2020]. 
+
+While we did not observe a measurable impact of distance on the probability of surface contamination with SARS-CoV-2 RNA, we did detect a decrease in probability of detection among both high and low-touch surfaces with time from COVID-19 diagnosis. A similar finding was described by Chia et al [@Chia2020], where patients over 7 days from illness had lower probability of surface contamination within rooms. Interestingly, while the probability of floor contamination decreased with time from diagnosis, the probability remained relatively high at later time points. Combined with the finding that the probability of floor contamination increased with time from the onset of the second COVID-19 Wave, this suggests that external contamination accounts for a significant proportion of floor contamination. Viral RNA carried on the feet of healthcare personnel or the mops of EVS teams may have resulted in increased probability of detection as COVID-19 census increased. Guo et al [@Guo2020] described that floor contamination was discovered in areas where clinical care was not performed, and suggested that it was spread by the feet of HCP.
   
-We found  .  
-  
-The significance  .  
-  
-Our study has several limitations.  .     
-  
+Our findings are significant as they reveal that varied distances within a patient room have similar probability of surface contamination. This finding supports CDC recommended infection control practices [@CDCInfectionControl]. Additionally, our findings highlight the role of touch in surface contamination of patient rooms and the likelihood of extrinsic contamination on SARS-CoV-2 units.
+
+Our study has several limitations. First, our study used quantitative PCR for the detection of SARS-CoV-2 RNA and did not use viral culture to determine the viability from surfaces. Secondly, we did not control for cleaning methods on study units. However, cleaning practices did not undergo significant changes during the study time period and sampling was performed routinely prior to daily cleaning. Finally, while we explored patient characteristics impacted the decay of surface contamination with time and distance, there was limited variability of some measures, making independent associations with viral detection less feasible.
+
 In conclusion,   .  
       
   
