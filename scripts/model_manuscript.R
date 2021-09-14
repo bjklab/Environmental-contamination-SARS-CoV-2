@@ -612,32 +612,43 @@ p_combined_subject_wave_time_adjusted
 
 #' ####################################################
 #' ####################################################
-#' EXPLORE FOR SUBJECT-LEVEL FEATURES a/w CONTAMINATION
+#' COVID SEVERITY IMPACT on ENVIRONMENTAL CONTAMINATION
 #' ####################################################
 #' ####################################################
 
-library(projpred)
-dat_subject <- read_csv("./data/dat_subjects.csv")
+dat_subject <- read_csv("./data/dat_subjects.csv") %>%
+  mutate(covid_severity = case_when(mech_vent_ever == FALSE & high_flow_nc_ever  == FALSE & bipap_cpap_ever == FALSE & supp_oxy_ever == FALSE ~ "No Oxygen Support",
+                                    mech_vent_ever == FALSE & high_flow_nc_ever  == FALSE & bipap_cpap_ever == FALSE & supp_oxy_ever == TRUE ~ "Only Nasal or Facemask Oxygen Support",
+                                    mech_vent_ever == TRUE | high_flow_nc_ever  == TRUE | bipap_cpap_ever == TRUE ~ "Significant Oxygen Support"),
+         covid_severity = factor(covid_severity, levels = c("No Oxygen Support", "Only Nasal or Facemask Oxygen Support", "Significant Oxygen Support")))
 dat_subject
 
+
 dat_subject %>%
-  summarise_at(.vars = vars(-redcap_id), .funs = list(count = ~ sum(.x), proportion = ~ sum(.x)/length(.x))) %>%
+  summarise_at(.vars = vars(-redcap_id, -covid_severity), .funs = list(count = ~ sum(.x), proportion = ~ sum(.x)/length(.x))) %>%
   pivot_longer(cols = everything()) %>%
   mutate(measure = stringr::str_extract(string = name, pattern = "count|proportion"),
          name = gsub("_count|_proportion","",name)) %>%
   pivot_wider(id_cols = "name", names_from = "measure", values_from = "value") %>%
+  arrange(desc(proportion)) %>%
   gt() %>%
-  gt::fmt_percent(columns = proportion)
+  gt::fmt_percent(columns = proportion) %>%
+  gtExtras::gt_color_rows(columns = -name, palette = viridis::turbo(n = 10), use_paletteer = FALSE) %>%
+  gtExtras::gt_theme_538() %>%
+  identity()
+  #gt::gtsave("./tabs/decontam_summarize_subject_data.html")
+  
 
 
 dat_subject %>%
-  count(mech_vent_ever, supp_oxy_ever, bipap_cpap_ever, steroid, remdesivir, name = "count") %>%
+  count(mech_vent_ever, bipap_cpap_ever, high_flow_nc_ever, supp_oxy_ever, steroid, remdesivir, name = "count") %>%
   gt() %>%
   gt::opt_all_caps() %>%
   gtExtras::gt_color_rows(columns = -count, palette = "basetheme::brutal", direction = 1, use_paletteer = TRUE) %>%
+  gtExtras::gt_add_divider(columns = count, sides = "left", color = "black") %>%
   gtExtras::gt_theme_538() %>%
   identity()
-  #gt::gtsave(./tabs/decontam_check_subject_data.html")
+  #gt::gtsave("./tabs/decontam_check_subject_data.html")
 
 
 dat_long %>%
@@ -652,10 +663,54 @@ dat_long %>%
   mutate(redcap_id = paste0("decon_subject_", redcap_id)) %>%
   mutate(site_category = stringr::str_to_title(gsub("_"," ",site_category))) %>%
   distinct() %>%
-  left_join(dat_subject, by = "redcap_id") %>%
+  left_join(select(dat_subject, redcap_id, covid_severity), by = "redcap_id") %>%
   identity() -> dat
 
 dat
+
+
+#' return to subject-level model
+m_mvbinom_scv2_time_category_touch_mix_subject_fitted
+
+#' compare subjects
+m_mvbinom_scv2_time_category_touch_mix_subject_fitted %>%
+  group_by(subject_room_id, subject_covid_day, site_category, high_touch) %>%
+  summarise(.epred = median(.epred, na.rm = TRUE)) %>%
+  mutate(high_touch = case_when(high_touch == TRUE ~ "High Touch",
+                                high_touch == FALSE ~ "Low Touch")) %>%
+  ungroup() %>%
+  left_join(select(ungroup(summarise(group_by(dat,subject_room_id), pandemic_index = min(total_study_day,na.rm=TRUE))), subject_room_id, pandemic_index), by = "subject_room_id") %>%
+  left_join(select(dat, subject_room_id, covid_severity), by = "subject_room_id") %>%
+  ggplot(aes(x = subject_covid_day, y = .epred, group = subject_room_id, color = covid_severity)) +
+  geom_line() +
+  scale_y_continuous(limits = c(0,1)) +
+  facet_wrap(facets = ~ site_category + high_touch, scales = "fixed") +
+  colorspace::scale_color_discrete_sequential(palette = "Red-Blue") +
+  labs(x = "Days after COVID-19 Diagnosis",
+       y = "Probability of SARS-CoV-2<br>Detection by RT-PCR",
+       color = "COVID-19 Disease Severity") +
+  theme_bw() +
+  theme(strip.text = ggtext::element_markdown(color = "black", size = 10),
+        axis.text.x = ggtext::element_markdown(color = "black"),
+        axis.text.y = ggtext::element_markdown(color = "black"),
+        axis.title.x = ggtext::element_markdown(color = "black"),
+        axis.title.y = ggtext::element_markdown(color = "black"),
+        legend.title = ggtext::element_markdown(color = "black"),
+        legend.position = "top",
+        #legend.background = element_rect(fill = "white", color = "black", size = 0.25),
+        strip.background = element_blank()) -> p_scv2_mvbinomial_time_site_category_touch_mix_subject_lines_severity
+p_scv2_mvbinomial_time_site_category_touch_mix_subject_lines_severity
+
+
+# p_scv2_mvbinomial_time_site_category_touch_mix_subject_lines %>%
+#   ggsave(filename = "./figs/p_scv2_mvbinomial_time_site_category_touch_mix_subject_lines.pdf", height = 5, width = 8, units = "in")
+# p_scv2_mvbinomial_time_site_category_touch_mix_subject_lines %>%
+#   ggsave(filename = "./figs/p_scv2_mvbinomial_time_site_category_touch_mix_subject_lines.png", height = 5, width = 8, units = "in", dpi = 600)
+# p_scv2_mvbinomial_time_site_category_touch_mix_subject_lines %>%
+#   ggsave(filename = "./figs/p_scv2_mvbinomial_time_site_category_touch_mix_subject_lines.svg", height = 5, width = 8, units = "in")
+
+
+
 
 
 
@@ -670,33 +725,33 @@ dat
 #' get prior
 dat %>%
   brms::get_prior(data = ., family = bernoulli,
-                  prior = prior(horseshoe(scale_global = 0.2, scale_slab = 1), class=b),
-                  scv2_detected ~ 1 + subject_covid_day + high_touch + mech_vent_ever + supp_oxy_ever + bipap_cpap_ever + steroid + remdesivir
+                  #prior = prior(horseshoe(scale_global = 0.2, scale_slab = 1), class=b),
+                  scv2_detected ~ 1 + subject_covid_day + site_category * total_study_day + high_touch + covid_severity,
   ) %>%
   gt::gt()
 
 
 #' run binomial model
 dat %>%
-  select(scv2_detected, subject_covid_day, total_study_day, site_category, high_touch, mech_vent_ever, supp_oxy_ever, bipap_cpap_ever, steroid, remdesivir) %>%
-  brm(formula = scv2_detected ~ 1 + subject_covid_day + site_category * total_study_day + high_touch + mech_vent_ever + supp_oxy_ever + bipap_cpap_ever + steroid + remdesivir,
+  select(scv2_detected, subject_covid_day, total_study_day, site_category, high_touch, covid_severity) %>%
+  brm(formula = scv2_detected ~ 1 + subject_covid_day + site_category * total_study_day + high_touch + covid_severity,
       data = .,
       family = bernoulli,
-      prior = prior(horseshoe(scale_global = 0.2, scale_slab = 1), class=b),
+      #prior = prior(horseshoe(scale_global = 0.2, scale_slab = 1), class=b),
       chains = 4,
       cores = 4,
       control = list("adapt_delta" = 0.999, max_treedepth = 10),
       backend = "cmdstanr",
-      seed = 16) -> m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features
+      seed = 16) -> m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity
 
-m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features %>% write_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features.rds.gz", compress = "gz")
-m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features <- read_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features.rds.gz")
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity %>% write_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity.rds.gz", compress = "gz")
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity <- read_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity.rds.gz")
 
-m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features
-rstan::check_hmc_diagnostics(m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features$fit)
-m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features %>% pp_check()
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity
+rstan::check_hmc_diagnostics(m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity$fit)
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity %>% pp_check()
 
-m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features %>%
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity %>%
   posterior_summary() %>%
   as_tibble(rownames = "param") %>%
   gt::gt() %>%
@@ -704,23 +759,67 @@ m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features %>%
 
 
 #' fitted
-m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features$data %>%
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity$data %>%
   as_tibble() %>%
   expand(subject_covid_day = modelr::seq_range(subject_covid_day, n = 10),
          site_category = unique(site_category),
          high_touch = unique(high_touch),
-         total_study_day = modelr::seq_range(total_study_day, n = 10)
+         total_study_day = modelr::seq_range(total_study_day, n = 10),
+         covid_severity = unique(covid_severity),
   ) %>%
   filter(!(high_touch == TRUE & site_category == "Floor")) %>%
-  add_epred_draws(m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features, ndraws = 1000) %>%
-  identity() -> m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features_fitted
-m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features_fitted
+  add_epred_draws(m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity, ndraws = 1000) %>%
+  identity() -> m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_fitted
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_fitted
+
+
+
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_fitted %>%
+  mutate(high_touch = case_when(high_touch == TRUE ~ "High Touch",
+                                high_touch == FALSE ~ "Low Touch")) %>%
+  mutate(site_category_touch = paste0(site_category, " ", high_touch)) %>%
+  group_by(site_category_touch, covid_severity) %>%
+  tidybayes::median_hdi(.epred) %>%
+  mutate(covid_severity = gsub("Facemask Oxygen","Facemask<br>Oxygen",covid_severity)) %>%
+  ggplot(data = .) +
+  geom_segment(mapping = aes(y = covid_severity, yend = covid_severity, x = .lower, xend = .upper, color = covid_severity)) +
+  geom_point(mapping = aes(y = covid_severity, x = .epred, color = covid_severity)) +
+  #scale_y_discrete(labels = rev) +
+  facet_wrap(facets = ~ site_category_touch, ncol = 1) +
+  scale_color_viridis_d(begin = 0, end = 0.8, option = "plasma", guide = "none") +
+  labs(x = "Probability of SARS-CoV-2<br>Detection by RT-PCR",
+       y = "") +
+  theme_bw() +
+  theme(strip.text = ggtext::element_markdown(color = "black", size = 10),
+        axis.text.x = ggtext::element_markdown(color = "black"),
+        axis.text.y = ggtext::element_markdown(color = "black"),
+        axis.title.x = ggtext::element_markdown(color = "black"),
+        axis.title.y = ggtext::element_markdown(color = "black"),
+        #legend.title = ggtext::element_markdown(color = "black"),
+        legend.title = element_blank(),
+        legend.position = "bottom",
+        #legend.background = element_rect(fill = "white", color = "black", size = 0.25),
+        strip.background = element_blank()) -> p_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity
+p_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity
+
+
+# p_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity %>%
+#   ggsave(filename = "./figs/p_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity.pdf", height = 6, width = 4, units = "in")
+# p_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity %>%
+#   ggsave(filename = "./figs/p_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity.png", height = 6, width = 4, units = "in", dpi = 600)
+# p_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity %>%
+#   ggsave(filename = "./figs/p_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity.svg", height = 6, width = 4, units = "in")
 
 
 
 
 
-
+#' ####################################################
+#' ####################################################
+#' EXPLORE OTHER SUBJECT-LEVEL FEATURES a/w CONTAMINATION
+#' ####################################################
+#' ####################################################
+library(projpred)
 
 
 
