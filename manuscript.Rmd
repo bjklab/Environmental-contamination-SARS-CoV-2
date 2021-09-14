@@ -41,6 +41,13 @@ dat_long %>%
   distinct() %>%
   identity() -> dat
 
+dat_subject <- read_csv("./data/dat_subjects.csv") %>%
+  mutate(covid_severity = case_when(mech_vent_ever == FALSE & high_flow_nc_ever  == FALSE & bipap_cpap_ever == FALSE & supp_oxy_ever == FALSE ~ "No Oxygen Support",
+                                    mech_vent_ever == FALSE & high_flow_nc_ever  == FALSE & bipap_cpap_ever == FALSE & supp_oxy_ever == TRUE ~ "Only Nasal or Facemask Oxygen Support",
+                                    mech_vent_ever == TRUE | high_flow_nc_ever  == TRUE | bipap_cpap_ever == TRUE ~ "Significant Oxygen Support"),
+         covid_severity = factor(covid_severity, levels = c("No Oxygen Support", "Only Nasal or Facemask Oxygen Support", "Significant Oxygen Support")))
+dat_subject
+
 m_mvbinom_scv2_distance_fix_category_touch <- read_rds(file = "./models/binomial/m_mvbinom_scv2_distance_fix_category_touch.rds.gz")
 
 m_mvbinom_scv2_time_fix_category_touch <- read_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch.rds.gz")
@@ -49,7 +56,9 @@ m_mvbinom_scv2_time_category_touch_mix_subject <- read_rds(file = "./models/bino
 
 m_mvbinom_scv2_time_fix_category_touch_adjust_wave <- read_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch_adjust_wave.rds.gz")
 
-tibble(model = list(m_mvbinom_scv2_distance_fix_category_touch, m_mvbinom_scv2_time_fix_category_touch, m_mvbinom_scv2_time_category_touch_mix_subject, m_mvbinom_scv2_time_fix_category_touch_adjust_wave), model_name = c("Distance Fixed", "Time Fixed", "Time Subject Random", "Time Pandemic Wave Adjusted")) %>%
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity <- read_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity.rds.gz")
+
+tibble(model = list(m_mvbinom_scv2_distance_fix_category_touch, m_mvbinom_scv2_time_fix_category_touch, m_mvbinom_scv2_time_category_touch_mix_subject, m_mvbinom_scv2_time_fix_category_touch_adjust_wave, m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity), model_name = c("Distance Fixed", "Time Fixed", "Time Subject Random", "Time Pandemic Wave Adjusted", "COVID-19 Severity")) %>%
   mutate(model_summary = map(model, .f = ~ brms::posterior_summary(.x) %>% as_tibble(rownames = "param"))) %>%
   select(model_name, model_summary) %>%
   unnest(cols = c(model_summary)) %>%
@@ -188,7 +197,7 @@ Patient rooms were eligible for inclusion in the study if the occupant had a pos
   
 * __SARS-CoV-2 Contamination of the Floor Increases with Pandemic Wave Duration__: To understand how subjects differed in the effect of time from COVID-19 diagnosis on SARS-CoV-2 contamination of the hospital environment, we re-fit the above model with the addition of random intercepts and slopes to account for subject-level differences. **Figure 2A** depicts the best estimate of the effect of time from COVID-19 diagnosis on the contamination in each subject's hospital room. In the figure, the lines representing each subject are colored by when they were enrolled during the course of the local, second-wave COVID-19 case surge. We observed that the contamination of high-touch elevated surfaces did not appear to relate to time from the start of the local case surge. However, contamination of floor surfaces appeared to be greater among subjects enrolled later in the course of the local case surge. To investigate this further, we added an interaction term to the model and found that each day since the start of the start of the local second wave increased the contamination of floor surfaces with OR `r m_combined_summary %>% filter(model_name == "Time Pandemic Wave Adjusted" & param == "b_site_categoryFloor:total_study_day") %>% pull(Estimate_exp) %>% round(.,2)` (95% CrI `r m_combined_summary %>% filter(model_name == "Time Pandemic Wave Adjusted" & param == "b_site_categoryFloor:total_study_day") %>% pull(Q2.5_exp) %>% round(.,2)` to `r m_combined_summary %>% filter(model_name == "Time Pandemic Wave Adjusted" & param == "b_site_categoryFloor:total_study_day") %>% pull(Q97.5_exp) %>% round(.,2)`) (**Figure 2B**).        
   
-* __SARS-CoV-2 Contamination of High-Touch Objects Depends on Subject Characteristics__: We found... **Table 2** ....    
+* __SARS-CoV-2 Contamination of Increases with COVID-19 Disease Severity__: To understand how COVID-19 disease severity could impact environmental contamination with SARS-CoV-2 RNA, we categorized subjects based on their required oxygen support: `r dat_subject %>% count(covid_severity) %>% pull(n) %>% .[1]` (`r dat_subject %>% count(covid_severity) %>% mutate(proportion = paste0(round(n / sum(n, na.rm = TRUE) * 100, 3),"%")) %>% pull(proportion) %>% .[1]`) subjects who required no oxygen support, `r dat_subject %>% count(covid_severity) %>% pull(n) %>% .[2]` (`r dat_subject %>% count(covid_severity) %>% mutate(proportion = paste0(round(n / sum(n, na.rm = TRUE) * 100, 3),"%")) %>% pull(proportion) %>% .[2]`) subjects who required only nasal or facemask oxygen support, and `r dat_subject %>% count(covid_severity) %>% pull(n) %>% .[3]` (`r dat_subject %>% count(covid_severity) %>% mutate(proportion = paste0(round(n / sum(n, na.rm = TRUE) * 100, 3),"%")) %>% pull(proportion) %>% .[3]`) subjects who required significant (i.e., high-flow, continuous or bilevel positive airway pressure, or mechanical ventilation) oxygen support. Adjusting for the site, time from COVID-19 diagnosis, and time from start of the local COVID-19 wave, we found that the use of significant oxygen support was associated with increased environmental SARS-CoV-2 RNA contamination, with OR `r m_combined_summary %>% filter(model_name == "COVID-19 Severity") %>% filter(grepl("SignificantOxygen",param)) %>% pull(Estimate_exp) %>% round(.,2)` ((95% CrI `r m_combined_summary %>% filter(model_name == "COVID-19 Severity") %>% filter(grepl("SignificantOxygen",param)) %>% pull(Q2.5_exp) %>% round(.,2)` to `r m_combined_summary %>% filter(model_name == "COVID-19 Severity") %>% filter(grepl("SignificantOxygen",param)) %>% pull(Q97.5_exp) %>% round(.,2)`)) relative to the no-oxygen-support reference group. **Figure 3** shows the predicted probabilities of SARS-CoV-2 environmental contamination as it relates to COVID-19 severity across all measured surfaces, adjusted for time from COVID-19 diagnosis and time from the start of the local COVID-19 wave.  
 
   
   
@@ -257,21 +266,6 @@ dat_gt %>%
 __Table 1: Hospital environment features sampled and proportion with detectable SARS-CoV-2 RNA.__ .  
   
   
-  
-#### Table 2:   
-  
-```{r table2, eval=TRUE, autodep=TRUE, error=FALSE, message=FALSE, warning=FALSE, fig.align='center'}
-
-
-```
-  
-  
-__Table 2: Subject characteristics that increase risk of high-touch object contamination.__ .  
-  
-
-
-
-
 
   
 -----  
@@ -310,18 +304,14 @@ __Figure 2: Variation in temporal effects and influence of pandemic duration.__ 
 \newpage
 <P style = "page-break-before: always">
   
+#### Figure 3:  
   
-  
-### Supplemental Figures:   
-  
-#### Supplemental Figure 1:  
-  
-```{r sfig1, eval=TRUE, autodep=TRUE, fig.align='center', out.width='60%'}
-#knitr::include_graphics(path = "")
+```{r fig3, eval=TRUE, autodep=TRUE, fig.align='center', out.width='50%'}
+knitr::include_graphics(path = "./figs/p_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity.png")
 ```
   
   
-__Supplemental Figure 1: Figure caption__          
+__Figure 3: Impact of COVID-19 disease severity on environmental contamination.__ To evaluate the effect of COVID-19 disease severity on environmental contamination, we compared the probability of SARS-CoV-2 RNA detection by RT-PCR (horizontal axis) across subjects with three levels of necessary oxygen support (vertical axis) at each sampling site. The point shows the best estimate and the sigment indicates the 95% posterior credible interval, with adjustment for time from COVID-19 diagnosis and time from the start of the local COVID-19 wave.               
   
   
 -----

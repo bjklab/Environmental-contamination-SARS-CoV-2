@@ -814,6 +814,96 @@ p_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity
 
 
 
+
+
+
+
+
+#' ####################################################
+#' ####################################################
+#' WHAT'S THE IMPACT OF INTERACTION?
+#' ####################################################
+#' ####################################################
+library(loo)
+
+#' run binomial model
+dat %>%
+  select(scv2_detected, subject_covid_day, total_study_day, site_category, high_touch, covid_severity) %>%
+  brm(formula = scv2_detected ~ 1 + subject_covid_day + site_category * total_study_day + high_touch + site_category * covid_severity,
+      data = .,
+      family = bernoulli,
+      #prior = prior(horseshoe(scale_global = 0.2, scale_slab = 1), class=b),
+      chains = 4,
+      cores = 4,
+      control = list("adapt_delta" = 0.999, max_treedepth = 10),
+      backend = "cmdstanr",
+      seed = 16) -> m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X
+
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X %>% write_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X.rds.gz", compress = "gz")
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X <- read_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X.rds.gz")
+
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X
+rstan::check_hmc_diagnostics(m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X$fit)
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X %>% pp_check()
+
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X %>%
+  posterior_summary() %>%
+  as_tibble(rownames = "param") %>%
+  gt::gt() %>%
+  gt::fmt_number(columns = 2:5, n_sigfig = 3)
+
+
+#' fitted
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X$data %>%
+  as_tibble() %>%
+  expand(subject_covid_day = modelr::seq_range(subject_covid_day, n = 10),
+         site_category = unique(site_category),
+         high_touch = unique(high_touch),
+         total_study_day = modelr::seq_range(total_study_day, n = 10),
+         covid_severity = unique(covid_severity),
+  ) %>%
+  filter(!(high_touch == TRUE & site_category == "Floor")) %>%
+  add_epred_draws(m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X, ndraws = 1000) %>%
+  identity() -> m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X_fitted
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X_fitted
+
+
+
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X_fitted %>%
+  mutate(high_touch = case_when(high_touch == TRUE ~ "High Touch",
+                                high_touch == FALSE ~ "Low Touch")) %>%
+  mutate(site_category_touch = paste0(site_category, " ", high_touch)) %>%
+  group_by(site_category_touch, covid_severity) %>%
+  tidybayes::median_hdi(.epred) %>%
+  mutate(covid_severity = gsub("Facemask Oxygen","Facemask<br>Oxygen",covid_severity)) %>%
+  ggplot(data = .) +
+  geom_segment(mapping = aes(y = covid_severity, yend = covid_severity, x = .lower, xend = .upper, color = covid_severity)) +
+  geom_point(mapping = aes(y = covid_severity, x = .epred, color = covid_severity)) +
+  #scale_y_discrete(labels = rev) +
+  facet_wrap(facets = ~ site_category_touch, ncol = 1) +
+  scale_color_viridis_d(begin = 0, end = 0.8, option = "plasma", guide = "none") +
+  labs(x = "Probability of SARS-CoV-2<br>Detection by RT-PCR",
+       y = "") +
+  theme_bw() +
+  theme(strip.text = ggtext::element_markdown(color = "black", size = 10),
+        axis.text.x = ggtext::element_markdown(color = "black"),
+        axis.text.y = ggtext::element_markdown(color = "black"),
+        axis.title.x = ggtext::element_markdown(color = "black"),
+        axis.title.y = ggtext::element_markdown(color = "black"),
+        #legend.title = ggtext::element_markdown(color = "black"),
+        legend.title = element_blank(),
+        legend.position = "bottom",
+        #legend.background = element_rect(fill = "white", color = "black", size = 0.25),
+        strip.background = element_blank()) -> p_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X
+p_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X
+
+
+loo::loo_compare(loo(m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity),
+                 loo(m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X))
+
+
+
+
 #' ####################################################
 #' ####################################################
 #' EXPLORE OTHER SUBJECT-LEVEL FEATURES a/w CONTAMINATION
