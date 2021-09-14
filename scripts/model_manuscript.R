@@ -558,7 +558,7 @@ m_mvbinom_scv2_time_fix_category_touch_adjust_wave_fitted %>%
   #facet_wrap(facets = ~ site_category) +
   scale_fill_brewer(palette = "Blues") +
   scale_y_continuous(limits = c(0,1)) +
-  labs(x = "Days from Start of Second COVID-19 Wave",
+  labs(x = "Days from Start of Local COVID-19 Wave",
        y = "Probability of SARS-CoV-2<br>Detection by RT-PCR",
        fill = "Posterior<br>Credible<br>Interval") +
   theme_bw() +
@@ -610,8 +610,111 @@ p_combined_subject_wave_time_adjusted
 
 
 
+#' ####################################################
+#' ####################################################
+#' EXPLORE FOR SUBJECT-LEVEL FEATURES a/w CONTAMINATION
+#' ####################################################
+#' ####################################################
+
+library(projpred)
+dat_subject <- read_csv("./data/dat_subjects.csv")
+dat_subject
+
+dat_subject %>%
+  summarise_at(.vars = vars(-redcap_id), .funs = list(count = ~ sum(.x), proportion = ~ sum(.x)/length(.x))) %>%
+  pivot_longer(cols = everything()) %>%
+  mutate(measure = stringr::str_extract(string = name, pattern = "count|proportion"),
+         name = gsub("_count|_proportion","",name)) %>%
+  pivot_wider(id_cols = "name", names_from = "measure", values_from = "value") %>%
+  gt() %>%
+  gt::fmt_percent(columns = proportion)
 
 
+dat_subject %>%
+  count(mech_vent_ever, supp_oxy_ever, bipap_cpap_ever, steroid, remdesivir, name = "count") %>%
+  gt() %>%
+  gt::opt_all_caps() %>%
+  gtExtras::gt_color_rows(columns = -count, palette = "basetheme::brutal", direction = 1, use_paletteer = TRUE) %>%
+  gtExtras::gt_theme_538() %>%
+  identity()
+  #gt::gtsave(./tabs/decontam_check_subject_data.html")
+
+
+dat_long %>%
+  # exclude bathroom sites and nursing sites (different distance scheme)
+  filter(grepl("bathroom|sink|toilet|nurse",site_descriptor) == FALSE) %>%
+  mutate(scv2_detected = !is.na(copies_max),
+         site_category = case_when(grepl("floor",site_descriptor) == TRUE ~ "floor",
+                                   grepl("floor",site_descriptor) == FALSE ~ "elevated"),
+         high_touch = touch == "High") %>%
+  #count(site_descriptor, site_category, high_touch)
+  select(subject_room_id, redcap_id, subject_room_day, subject_covid_day, subject_hosp_day, total_study_day, swab_site, unit, site_category, touch, high_touch, distance, copies_max, scv2_detected) %>%
+  mutate(redcap_id = paste0("decon_subject_", redcap_id)) %>%
+  mutate(site_category = stringr::str_to_title(gsub("_"," ",site_category))) %>%
+  distinct() %>%
+  left_join(dat_subject, by = "redcap_id") %>%
+  identity() -> dat
+
+dat
+
+
+
+
+#' ####################################################
+#' generative model for SARS-CoV-2 contamination ~ days from COVID diagnosis, adjusted for total days since local second wave
+#' - elevated vs floor -- accounting for high-touch
+#' - binomial probability of detection
+#' - additional subject-level features
+#' ####################################################
+
+#' get prior
+dat %>%
+  brms::get_prior(data = ., family = bernoulli,
+                  prior = prior(horseshoe(scale_global = 0.2, scale_slab = 1), class=b),
+                  scv2_detected ~ 1 + subject_covid_day + high_touch + mech_vent_ever + supp_oxy_ever + bipap_cpap_ever + steroid + remdesivir
+  ) %>%
+  gt::gt()
+
+
+#' run binomial model
+dat %>%
+  select(scv2_detected, subject_covid_day, total_study_day, site_category, high_touch, mech_vent_ever, supp_oxy_ever, bipap_cpap_ever, steroid, remdesivir) %>%
+  brm(formula = scv2_detected ~ 1 + subject_covid_day + site_category * total_study_day + high_touch + mech_vent_ever + supp_oxy_ever + bipap_cpap_ever + steroid + remdesivir,
+      data = .,
+      family = bernoulli,
+      prior = prior(horseshoe(scale_global = 0.2, scale_slab = 1), class=b),
+      chains = 4,
+      cores = 4,
+      control = list("adapt_delta" = 0.999, max_treedepth = 10),
+      backend = "cmdstanr",
+      seed = 16) -> m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features
+
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features %>% write_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features.rds.gz", compress = "gz")
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features <- read_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features.rds.gz")
+
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features
+rstan::check_hmc_diagnostics(m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features$fit)
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features %>% pp_check()
+
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features %>%
+  posterior_summary() %>%
+  as_tibble(rownames = "param") %>%
+  gt::gt() %>%
+  gt::fmt_number(columns = 2:5, n_sigfig = 3)
+
+
+#' fitted
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features$data %>%
+  as_tibble() %>%
+  expand(subject_covid_day = modelr::seq_range(subject_covid_day, n = 10),
+         site_category = unique(site_category),
+         high_touch = unique(high_touch),
+         total_study_day = modelr::seq_range(total_study_day, n = 10)
+  ) %>%
+  filter(!(high_touch == TRUE & site_category == "Floor")) %>%
+  add_epred_draws(m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features, ndraws = 1000) %>%
+  identity() -> m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features_fitted
+m_mvbinom_scv2_time_fix_category_touch_adjust_wave_subject_features_fitted
 
 
 
