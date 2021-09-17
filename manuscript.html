@@ -461,8 +461,8 @@ BJK - study design, data collection and analysis, manuscript;</p>
 <ul>
 <li><p><strong>Background</strong>: SARS-CoV-2 is known to contaminate surfaces within healthcare settings, but the spatial and temporal extent of environmental contamination has not been precisely defined. We sought to define SARS-CoV-2 contamination of different surface types and how contamination changes over time.</p></li>
 <li><p><strong>Methods</strong>: We performed longitudinal sampling of surfaces within COVID-19 patient rooms while measuring the distance from each surface to the patient bed. We performed quantitative RT-PCR for the detection of SARS-CoV-2 RNA and modeled the role of distance, time, and severity of illness on the probability of detecting SARS-CoV-2 using a mixed-effects binomial model.</p></li>
-<li><p><strong>Results</strong>: The probability of detecting SARS-CoV-2 RNA did not vary with distance. However, we found that surface type predicted probability of detection, with floors and high-touch surfaces having the highest probability of detection (floors: 67.8 (95% CrI 36.3 to 131); high-touch elevated: OR 7.39 (95% CrI 4.31 to 13.1)). Patients requiring high-flow, continuous or bilevel positive airway pressure, or mechanical ventilation respiratory were associated with increased surface contamination (OR 1.6 (95% CrI 1.03 to 2.53)). The probability of surface contamination decayed with prolonged hospitalization, but the probability of floor detection increased with duration of the local pandemic wave.</p></li>
-<li><p><strong>Conclusions</strong>: SARS-CoV-2 surface deposition did not vary with distance within patient rooms. However, surface type, severity of illness, and time predicted surface deposition.</p></li>
+<li><p><strong>Results</strong>: The probability of detecting SARS-CoV-2 RNA did not vary with distance. However, we found that surface type predicted probability of detection, with floors and high-touch surfaces having the highest probability of detection (floors odds ratio (OR) 67.8 (95% CrI 36.3 to 131); high-touch elevated OR 7.39 (95% CrI 4.31 to 13.1)). Patients requiring high-flow oxygen, positive airway pressure, or mechanical ventilation respiratory were associated with increased surface contamination (OR 1.6 (95% CrI 1.03 to 2.53)). The probability of surface elevated contamination decayed with prolonged hospitalization, but the probability of floor detection increased with duration of the local pandemic wave.</p></li>
+<li><p><strong>Conclusions</strong>: Distance from patient’s bed did not predict SARS-CoV-2 RNA deposition in patient rooms, but surface type, severity of illness, and time predicted surface deposition.</p></li>
 </ul>
 <p><!-- -----  
 \newpage  
@@ -477,7 +477,7 @@ If required by journal. --></p>
 <div id="introduction" class="section level3">
 <h3>Introduction:</h3>
 <p>Despite infection control measures, transmission of SARS-CoV-2 infection has been observed in the healthcare and hospital settings. In a recent study of SARS-CoV-2-infected and -uninfected patients inadvertently roomed together, 39% of exposed uninfected patients developed COVID-19. Risk of SARS-CoV-2 transmission was associated with source patients who had low cycle threshold (Ct), i.e., high viral load, in their diagnostic testing.<span class="citation"><sup>1</sup></span></p>
-<p>SARS-CoV-2 transmission can be mediated by droplets, aerosols, or fomites. Prior studies have demonstrated that SARS-CoV-2 extensively contaminates surfaces in the healthcare environment.<span class="citation"><sup>2</sup></span> However, the spatial extent of contamination – and how contamination changes during the course of hospitalization – remain less well understood.<span class="citation"><sup>3</sup></span></p>
+<p>SARS-CoV-2 transmission can be mediated by droplets, aerosols, or fomites. Prior studies have demonstrated that SARS-CoV-2 extensively contaminates surfaces in the healthcare environment.<span class="citation"><sup>2</sup></span> However, the spatial extent of contamination and how contamination changes during the course of hospitalization remain less well understood.<span class="citation"><sup>3</sup></span></p>
 <p>We have previously applied a systematic sampling and spatial modeling strategy to define how multidrug-resistant organisms cluster in the hospital environment.<span class="citation"><sup>4</sup></span> We now extend the methods we have developed to understand how SARS-CoV-2 contamination is distributed spatially, and how it changes over time.</p>
 <hr />
 <div style="page-break-after: always;"></div>
@@ -485,11 +485,11 @@ If required by journal. --></p>
 <div id="materials-and-methods" class="section level3">
 <h3>Materials and Methods:</h3>
 <ul>
-<li><p><strong>Study Design, Setting, and Population</strong>: We performed a prospective cohort study at the Hospital of the University of Pennsylvania (HUP), an academic medical center in Philadelphia, PA, USA (IRB protocol #843273). Patients with COVID-19 were housed on multiple hospital units over the course of the study according to bed availability. All rooms underwent daily cleaning, according to hospital protocol. Environmental services (EVS) staff used disposable disinfectant wipes (quaternary ammonium disinfectant) for use on high-touch objects, limiting use to a single surface. Floors were cleaned using a microfiber mop and a chlorine-based disinfectant (sodium dichloroisocyanurate).</p></li>
-<li><p><strong>Causal Model</strong>: We hypothesized that SARS-CoV-2 contamination would decay with physical distance from patient and with time from COVID-19 diagnosis. We also hypothesized that high-touch objects would be more frequently contaminated with SARS-CoV-2 RNA than low-touch objects, and that increased COVID-19 disease severity would be associated with greater environmental contamination.</p></li>
-<li><p><strong>Specimen Collection and SARS-CoV-2 RT-PCR</strong>: COVID-19 patient rooms were swabbed longitudinally until day 28 or patient discharge from the hospital (i.e., hospital days 1,2,7,14,21,and 28). Longitudinal sampling continued if the patient was removed from COVID-19 isolation precautions or the patient transferred to a new hospital room. Multiple surfaces were swabbed within each patient room using a Copan FLOQ(TM) swab and a sterile template (20cm2). Specific surfaces are listed in Table 1 with high-touch surfaces selected using structured observations prior to study start. Swabs were immediately placed into buffered AVL and frozen prior to further processing. Specimens then underwent RNA extraction and RT-PCR targeting the SARS-CoV-2 N1 region in triplicate.</p></li>
+<li><p><strong>Study Design, Setting, and Population</strong>: We performed a prospective cohort study at the Hospital of the University of Pennsylvania (HUP), an academic medical center in Philadelphia, PA, USA (IRB protocol #843273). Patients with COVID-19 were housed on multiple hospital units over the course of the study according to bed availability. All rooms underwent daily cleaning, according to hospital protocol. Environmental services (EVS) staff used disposable disinfectant wipes (quaternary ammonium disinfectant) for use on high-touch objects, limiting use to a single surface. Floors were cleaned using a microfiber mop and sodium dichloroisocyanurate, a chlorine-based disinfectant. Patient rooms were eligible for inclusion in the study if the occupant had a positive test for SARS-CoV-2 within the prior 7 days and was admitted to a new patient room with COVID-19 isolation precautions.</p></li>
+<li><p><strong>Causal Model</strong>: We hypothesized that SARS-CoV-2 contamination of the healthcare environment would decay with physical distance from patient and with time from COVID-19 diagnosis. We also hypothesized that high-touch objects would be more frequently contaminated with SARS-CoV-2 RNA than low-touch objects, and that increased COVID-19 disease severity would be associated with greater environmental contamination.</p></li>
+<li><p><strong>Specimen Collection and SARS-CoV-2 RT-PCR</strong>: COVID-19 patient rooms were swabbed longitudinally until day 28 or patient discharge from the hospital, with sampling targeted to hospital days 1, 2, 7, 14, 21, and 28. Longitudinal sampling continued if the patient was removed from COVID-19 isolation precautions or the patient transferred to a new hospital room. Multiple surfaces were swabbed within each patient room using a flocked nylon swab (Copan) within a sterile 20 cm<sup>2</sup> template to ensure consistent sampling. High-touch surfaces (<strong>Table 1</strong>) were selected using structured observations prior to study start. Swabs were immediately placed into buffered AVL and frozen prior to further processing. Specimens then underwent RNA extraction (<span style="background-color:cyan">which kit?</span>) and quantitative reverse transcription polymerase chain reaction (RT-qPCR) (Thermo Quantstudio) with primers and probe targeting the SARS-CoV-2 N1 region (Centers for Disease Control and Prevention (CDC) RT-qPCR probe assay, IDT) in triplicate.</p></li>
 <li><p><strong>Distance Data Collection</strong>: Distance from the environmental sampling site to the patient’s head of bed was recorded using a laser measuring device (Bosch GLM 20). Templates were affixed to each surface and the linear distance from the patient’s head of bed to the sample site was measured.</p></li>
-<li><p><strong>Definition of Exposures and Outcomes</strong>: Patient rooms were eligible for inclusion in the study if the occupant had a positive test for SARS-CoV-2 within the prior 7 days and was admitted to a new patient room with COVID-19 isolation precautions. The primary study outcome of interest, detection of SARS-CoV-2 by PCR assay, was determined by detection of any quantifiable RNA.</p></li>
+<li><p><strong>Definition of Exposures and Outcomes</strong>: The primary outcome of interest, detection of SARS-CoV-2 by RT-qPCR assay, was determined by detection of any quantifiable RNA on <span style="background-color:cyan">any of three technical replicates</span>. The primary exposures of interest were (1) distance from the head of patient’s bed, measured as above; (2) time from COVID-19 diagnosis and from the start of the local COVID-19 case wave; and (3) COVID-19 clinical severity. We categorized COVID-19 severity by the highest level of oxygen support required during the subjects’ admission, wither no oxygen support required (mild disease), only nasal or facemask oxygen support required (moderate disease), significant oxygen support (i.e., high-flow nasal cannula, continuous or bilevel positive airway pressure, or mechanical ventilation) required (severe disease).</p></li>
 <li><p><strong>Statistical Methods</strong>: Data were organized using R statistical software version 3.6.1,<span class="citation"><sup>5</sup></span> and plots generated using the “ggplot2” package.<span class="citation"><sup>6</sup></span> We examined how (1) distance from the patient and (2) time since COVID-19 diagnosis relate to the probability of SARS-CoV-2 detection using a binomial model with a logit link. We also evaluated mixed-effects model incorporating a random effect for subjects to account for clustering of longitudinal data, and to evaluate inter-subject differences. Models were fit using Stan Hamiltonian Monte Carlo (HMC) version 2.21, via the “brms” package with default, weakly-informative priors.<span class="citation"><sup>7,8</sup></span> Prior predictive modeling was performed, and models were fit with 4 chains of 1000 iterations, confirmed with HMC diagnostics (no divergent iterations, Rhat statistic &lt; 1.1 for all parameters, and E-BFMI &gt; 0.2).<span class="citation"><sup>9–11</sup></span> We examined parameter distributions at 50%, 80%, and 95% posterior credible intervals to understand the relationship between exposure and outcome variables.</p></li>
 <li><p><strong>Power and Sample Size</strong>: We anticipated that the enrollment of a minumum of 100 subjects would permit detection of a minimum of a 10% decrease probability of surface detection between distance groups with type 1 error less than 0.05.</p></li>
 <li><p><strong>Availability of Data</strong>: Data, analysis scripts, and model code are available at <a href="https://github.com/bjklab" class="uri">https://github.com/bjklab</a>.</p></li>
@@ -511,11 +511,11 @@ If required by journal. --></p>
 </div>
 <div id="discussion" class="section level3">
 <h3>Discussion:</h3>
-<p>We sought to define the impact of time and distance on SARS-CoV-2 surface contamination through longitudinal sampling of within COVID-19 patient rooms. We found that distance from the patient’s bed did not inform the probability of detection of SARS-CoV-2 RNA. We had hypothesized that the probability of RNA detection would decrease with distance. This hypothesis was informed by our prior work with bacterial deposition within patient rooms, where some taxa have decreased probability of detection as distance changes within patient room.<span class="citation"><sup>4</sup></span> However, we found that SARS-CoV-2 detection did not vary significantly among any surface group as distance varied. This is most likely related to two factors 1) the relatively small size of patient rooms and 2) the physical spread of viral RNA through touch. We observed large differences in the probability of detecting surface contamination by surface type. Floors had high probability of contamination, which did not vary throughout the room. This is likely related to both the role of patient and healthcare personnel (HCP) foot traffic in addition to the physical action of mopping which may spread body fluids containing viral RNA within the patient’s room. This finding matches previous description of high probability of floor contamination relative to other surfaces.<span class="citation"><sup>12</sup></span> In contrast to floors, walls had significantly lower probability of contamination. This may be due to the decreased settling of respiratory droplets on vertical surfaces, or the decreased role of touch or secondary contamination through cleaning.</p>
-<p>While we did not observe a measurable impact of distance on the probability of surface contamination with SARS-CoV-2 RNA, we did detect a decrease in probability of detection among both high and low-touch surfaces with time from COVID-19 diagnosis. A similar finding was described by Chia et al,<span class="citation"><sup>12</sup></span> where patients over 7 days from illness had lower probability of surface contamination within rooms. Interestingly, while the probability of floor contamination decreased with time from diagnosis, the probability remained relatively high at later time points. Combined with the finding that the probability of floor contamination increased with time from the onset of the second COVID-19 Wave, this suggests that external contamination accounts for a proportion of floor contamination. Viral RNA carried on the feet of HCP or the mops of EVS teams may have resulted in increased probability of detection as COVID-19 census increased. This is supported by other research where floor contamination was discovered to spread beyond clinical areas.<span class="citation"><sup>13</sup></span> Additionally, it is possible that viral RNA persists on surfaces even after terminal cleaning, leading to an accumulation effect.</p>
-<p>With increased clinical severity, specifically those who required high-flow, continuous or bilevel positive airway pressure, or mechanical ventilation, we detected an increased odds of detecting surface RNA within rooms. This finding may be the result of either the higher viral burden of occupying patients, or the role of increased respiratory droplet and aerosol production associated with respiratory procedures. In a prior study, disease severity was not correlated with cycle threshold from anatomic specimens<span class="citation"><sup>14</sup></span> in a large observational study, potentially supporting the contribution of respiratory care in surface contamination. Thus, while, we can only hypothesize the mechanism for greater odds of detection in these patients, this finding supports CDC guidance for prolonged isolation in critically ill patients.<span class="citation"><sup>15</sup></span></p>
-<p>Our study has several limitations. First, our study used quantitative PCR for the detection of SARS-CoV-2 RNA and did not use viral culture to determine the viability from surfaces. Secondly, we did not control for cleaning methods on study units. However, cleaning practices did not undergo systematic changes during the study time period and sampling was performed routinely prior to daily cleaning. Finally, we did not perform matching sampling of occupying patients to explore the role of patient viral load and surface contamination.</p>
-<p>In conclusion, SARS-CoV-2 RNA surface deposition did not vary with distance within patient rooms. However, surface type, severity of illness, and time predicted detection of surface contamination. Future studies are needed to determine the role of surface contamination in risk of infection among patients and HCP.</p>
+<p>We sought to define the impact of time and distance on SARS-CoV-2 contamination of the healthcare environment through longitudinal sampling of surfaces within COVID-19 patient rooms. We found that distance from the patient’s bed did not inform the probability of detection of SARS-CoV-2 RNA, but the category of surace (elevated or floor, high-touch or low-touch) did predict different levels of contamination. We also found a decrease in probability of detection among both high and low-touch surfaces with time from COVID-19 diagnosis, consistent with previous reports.<span class="citation"><sup>12</sup></span> While the overall probability of SARS-CoV-2 RNA detection decreased as time from diagnosis increased, the probability of SARS-CoV-2 RNA detection on floors increased with time from the onset of the local COVID-19 case wave. The unique behavior of floor surfaces raises the possibility of accumulation as SARS-CoV-2 RNA carried on the feet of healthcare personnel (HCP) or the mops of EVS teams increases with the COVID-19 patient census. This possibility is supported by other research where floor contamination was discovered to spread beyond clinical areas.<span class="citation"><sup>13</sup></span> Additionally, it is possible that viral RNA persists on surfaces even after terminal cleaning, leading to an accumulation effect.</p>
+<p>We found that increased clinical severity of COVID-19, measured by oxygen requirement, was associated with increased contamination of the healthcare environment. Specifically, those subjects who required high-flow nasal cannula, continuous or bilevel positive airway pressure, or mechanical ventilation, were found to have increased odds of detecting surface SARS-CoV-2 RNA, compared to those with no oxygen requirement. This finding may be the result of either the higher viral burden of occupying patients, or the role of increased respiratory droplet and aerosol production associated with respiratory procedures. In a prior study, disease severity was not correlated with cycle threshold from anatomic specimens,<span class="citation"><sup>14</sup></span> potentially supporting the contribution of respiratory care in surface contamination. While we can only speculate on the mechanism for greater detection in these patients, our findings support CDC guidance for prolonged isolation in critically ill patients.<span class="citation"><sup>15</sup></span></p>
+<p>Our study design and hypotheses were informed by our prior work with bacterial deposition within patient rooms, where some taxa have decreased probability of detection as distance changes within patient room.<span class="citation"><sup>4</sup></span> Contrary to our findings with multidrug-resistant bacteria, SARS-CoV-2 detection did not vary significantly within any surface group as distance from the patient increased. The difference between the findings from our two studies is most likely related to two factors: (1) the relatively small size of patient rooms and (2) the physical spread of SARS-CoV-2 RNA through touch. We observed large differences in the probability of detecting surface contamination by surface type. Floors had high probability of contamination, which did not vary throughout the room. This is likely related to both the role of patient and HCP foot traffic in addition to the physical action of mopping which may spread body fluids containing viral RNA within the patient’s room. This finding matches previous description of high probability of floor contamination relative to other surfaces.<span class="citation"><sup>12</sup></span> In contrast to floors, walls had significantly lower probability of contamination. This may be due to the decreased settling of respiratory droplets on vertical surfaces, or the decreased role of touch or secondary contamination through cleaning.</p>
+<p>Our study has several limitations. First, we used RT-qPCR for the detection of SARS-CoV-2 RNA and did not use viral culture to determine the viability from surfaces. Secondly, we did not measure differences in cleaning methods across different study units. However, cleaning practices did not undergo systematic changes during the study time period and sampling was performed routinely prior to daily cleaning. Finally, we were not able to measure SARS-CoV-2 viral loads directly from human subjects, which would have permitted us to better explore the contribution of differences in shedding between subjects.</p>
+<p>In conclusion, SARS-CoV-2 RNA surface deposition did not vary with distance within patient rooms. However, surface type, severity of illness, and time predicted detection of surface contamination. Future studies should focus on how the observed surface contamination contributes to risk of infection among patients and HCP, and on how cleaning strategies can target surfaces found to be at high risk of contamination.</p>
 <hr />
 <div style="page-break-after: always;"></div>
 </div>
@@ -523,12 +523,12 @@ If required by journal. --></p>
 <h3>Tables:</h3>
 <div id="table-1" class="section level4">
 <h4>Table 1:</h4>
-<div id="ntlqwutcnd" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="dllipvkbzu" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#ntlqwutcnd .gt_table {
+#dllipvkbzu .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -553,7 +553,7 @@ If required by journal. --></p>
   border-left-color: #D3D3D3;
 }
 
-#ntlqwutcnd .gt_heading {
+#dllipvkbzu .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -565,7 +565,7 @@ If required by journal. --></p>
   border-right-color: #D3D3D3;
 }
 
-#ntlqwutcnd .gt_title {
+#dllipvkbzu .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -575,7 +575,7 @@ If required by journal. --></p>
   border-bottom-width: 0;
 }
 
-#ntlqwutcnd .gt_subtitle {
+#dllipvkbzu .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -585,13 +585,13 @@ If required by journal. --></p>
   border-top-width: 0;
 }
 
-#ntlqwutcnd .gt_bottom_border {
+#dllipvkbzu .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ntlqwutcnd .gt_col_headings {
+#dllipvkbzu .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -606,7 +606,7 @@ If required by journal. --></p>
   border-right-color: #D3D3D3;
 }
 
-#ntlqwutcnd .gt_col_heading {
+#dllipvkbzu .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -626,7 +626,7 @@ If required by journal. --></p>
   overflow-x: hidden;
 }
 
-#ntlqwutcnd .gt_column_spanner_outer {
+#dllipvkbzu .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -638,15 +638,15 @@ If required by journal. --></p>
   padding-right: 4px;
 }
 
-#ntlqwutcnd .gt_column_spanner_outer:first-child {
+#dllipvkbzu .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ntlqwutcnd .gt_column_spanner_outer:last-child {
+#dllipvkbzu .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ntlqwutcnd .gt_column_spanner {
+#dllipvkbzu .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -658,7 +658,7 @@ If required by journal. --></p>
   width: 100%;
 }
 
-#ntlqwutcnd .gt_group_heading {
+#dllipvkbzu .gt_group_heading {
   padding: 8px;
   color: #333333;
   background-color: #FFFFFF;
@@ -680,7 +680,7 @@ If required by journal. --></p>
   vertical-align: middle;
 }
 
-#ntlqwutcnd .gt_empty_group_heading {
+#dllipvkbzu .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -695,15 +695,15 @@ If required by journal. --></p>
   vertical-align: middle;
 }
 
-#ntlqwutcnd .gt_from_md > :first-child {
+#dllipvkbzu .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ntlqwutcnd .gt_from_md > :last-child {
+#dllipvkbzu .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ntlqwutcnd .gt_row {
+#dllipvkbzu .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -722,7 +722,7 @@ If required by journal. --></p>
   overflow-x: hidden;
 }
 
-#ntlqwutcnd .gt_stub {
+#dllipvkbzu .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -734,7 +734,7 @@ If required by journal. --></p>
   padding-left: 12px;
 }
 
-#ntlqwutcnd .gt_summary_row {
+#dllipvkbzu .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -744,7 +744,7 @@ If required by journal. --></p>
   padding-right: 5px;
 }
 
-#ntlqwutcnd .gt_first_summary_row {
+#dllipvkbzu .gt_first_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -754,7 +754,7 @@ If required by journal. --></p>
   border-top-color: #D3D3D3;
 }
 
-#ntlqwutcnd .gt_grand_summary_row {
+#dllipvkbzu .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -764,7 +764,7 @@ If required by journal. --></p>
   padding-right: 5px;
 }
 
-#ntlqwutcnd .gt_first_grand_summary_row {
+#dllipvkbzu .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -774,11 +774,11 @@ If required by journal. --></p>
   border-top-color: #D3D3D3;
 }
 
-#ntlqwutcnd .gt_striped {
+#dllipvkbzu .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ntlqwutcnd .gt_table_body {
+#dllipvkbzu .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -787,7 +787,7 @@ If required by journal. --></p>
   border-bottom-color: #D3D3D3;
 }
 
-#ntlqwutcnd .gt_footnotes {
+#dllipvkbzu .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -801,13 +801,13 @@ If required by journal. --></p>
   border-right-color: #D3D3D3;
 }
 
-#ntlqwutcnd .gt_footnote {
+#dllipvkbzu .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding: 4px;
 }
 
-#ntlqwutcnd .gt_sourcenotes {
+#dllipvkbzu .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -821,41 +821,41 @@ If required by journal. --></p>
   border-right-color: #D3D3D3;
 }
 
-#ntlqwutcnd .gt_sourcenote {
+#dllipvkbzu .gt_sourcenote {
   font-size: 90%;
   padding: 4px;
 }
 
-#ntlqwutcnd .gt_left {
+#dllipvkbzu .gt_left {
   text-align: left;
 }
 
-#ntlqwutcnd .gt_center {
+#dllipvkbzu .gt_center {
   text-align: center;
 }
 
-#ntlqwutcnd .gt_right {
+#dllipvkbzu .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ntlqwutcnd .gt_font_normal {
+#dllipvkbzu .gt_font_normal {
   font-weight: normal;
 }
 
-#ntlqwutcnd .gt_font_bold {
+#dllipvkbzu .gt_font_bold {
   font-weight: bold;
 }
 
-#ntlqwutcnd .gt_font_italic {
+#dllipvkbzu .gt_font_italic {
   font-style: italic;
 }
 
-#ntlqwutcnd .gt_super {
+#dllipvkbzu .gt_super {
   font-size: 65%;
 }
 
-#ntlqwutcnd .gt_footnote_marks {
+#dllipvkbzu .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 65%;
