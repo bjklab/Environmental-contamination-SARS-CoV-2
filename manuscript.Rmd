@@ -69,14 +69,14 @@ tibble(model = list(m_mvbinom_scv2_distance_fix_category_touch, m_mvbinom_scv2_t
 
 
 ```
-
-
+  
+  
 ## Title  
 Spatial and temporal effects on SARS-CoV-2 contamination of the healthcare environment  
   
 ## Abbreviated Title  
 SARS-CoV-2 Healthcare Contamination    
-  
+   
 ## Authors  
 Matthew J. Ziegler, MD, MS (1,2,3); Selamawit Bekele (2,3); Sean Loughrey, MS (2,3); Emily Reesey, MS (2,2); Elizabeth Huang (2,3); Pam Tolomeo, MPH (2,3); Ebbing Lautenbach, MD, MPH, MS (1,2,3); Brendan J. Kelly, MD, MS (1,2,3) for the CDC Prevention Epicenters Program  
   
@@ -110,7 +110,7 @@ SARS-CoV-2, COVID-19, hospital microbiome
   
 ### Acknowledgements:  
 This research, BJK, MJZ, and EL are supported in part by a CDC Cooperative Agreement FOA#CK16-004 "Epicenters for the Prevention of Healthcare Associated Infections”. BJK is supported by the National Institute for Allergy and Infectious Diseases (K23 AI121485 and L30 AI120149). MJZ is supported by the National Institute for Allergy and Infectious Diseases (K23 AI143925).   
-
+  
 ### Disclosures:  
 The authors report no conflicts of interest.    
   
@@ -118,55 +118,57 @@ The authors report no conflicts of interest.
 ?????       
   
   
------
-\newpage
-<P style = "page-break-before: always">
+-----    
+  
+\newpage     
   
 ## Manuscript  
   
 ### Abstract  
   
-* __Background__: SARS-CoV-2 RNA has been described to contaminate surfaces within healthcare settings. However, little is known regarding the role of distance and time in surface contamination in a clinical setting.
+* __Background__: SARS-CoV-2 is known to contaminate surfaces within healthcare settings, but the spatial and temporal extent of environmental contamination has not been precisely defined. We sought to define SARS-CoV-2 contamination of different surface types and how contamination changes over time.  
   
-* __Methods__: We performed longitudinal sampling of surfaces within COVID-19 patient rooms while measuring the distance from each surface to the patient bed. We performed quantitative RT-PCR for the detection of SARS-CoV-2 RNA and modeled the role of distance, time, and severity of illness on the probability of detecting SARS-CoV-2 using a mixed-effects binomial model.
+* __Methods__: We performed longitudinal sampling of surfaces within COVID-19 patient rooms while measuring the distance from each surface to the patient bed. We performed quantitative RT-PCR for the detection of SARS-CoV-2 RNA and modeled the role of distance, time, and severity of illness on the probability of detecting SARS-CoV-2 using a mixed-effects binomial model.  
   
-* __Results__: Probability of detecting SARS-CoV-2 RNA did not vary with distance. However, we found that surface type predicted probability of detection, with floors and high-touch surfaces having the highest probability of detection (floors: odds ratio [OR] 67.77 (95% confidence interval [CI] 36.34 to 131.47, high-touch elevated: OR 7.39 (95% CI 4.31 to 13.09)). Patients requiring high-flow, continuous or bilevel positive airway pressure, or mechanical ventilation respiratory support had greater odds of  surface contamination (OR 1.76 (95% CrI 1.2 to 2.57)). While the probability of surface contamination decayed with prolonged hospitalization, probability of floor detection increased with time over the pandemic.
+* __Results__: The probability of detecting SARS-CoV-2 RNA did not vary with distance. However, we found that surface type predicted probability of detection, with floors and high-touch surfaces having the highest probability of detection (floors: `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Estimate_exp) %>% signif(.,3)` (95% CrI `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Q2.5_exp) %>% signif(.,3)` to `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Q97.5_exp) %>% signif(.,3)`); high-touch elevated: OR `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Estimate_exp) %>% signif(.,3)` (95% CrI `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Q2.5_exp) %>% signif(.,3)` to `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Q97.5_exp) %>% signif(.,3)`)). Patients requiring high-flow, continuous or bilevel positive airway pressure, or mechanical ventilation respiratory were associated with increased surface contamination (OR `r m_combined_summary %>% filter(model_name == "COVID-19 Severity") %>% filter(grepl("SignificantOxygen",param)) %>% pull(Estimate_exp) %>% signif(.,3)` (95% CrI `r m_combined_summary %>% filter(model_name == "COVID-19 Severity") %>% filter(grepl("SignificantOxygen",param)) %>% pull(Q2.5_exp) %>% signif(.,3)` to `r m_combined_summary %>% filter(model_name == "COVID-19 Severity") %>% filter(grepl("SignificantOxygen",param)) %>% pull(Q97.5_exp) %>% signif(.,3)`)). The probability of surface contamination decayed with prolonged hospitalization, but the probability of floor detection increased with duration of the local pandemic wave.  
     
-* __Conclusions__: SARS-CoV-2 surface deposition did not vary with distance within patient rooms. However, surface type, severity of illness, and time predicted surface deposition. 
+* __Conclusions__: SARS-CoV-2 surface deposition did not vary with distance within patient rooms. However, surface type, severity of illness, and time predicted surface deposition.   
+   
+ <!-- -----  
+\newpage  
   
- <!-- -----
-\newpage
-<P style = "page-break-before: always">
   
 ### Importance  
   
 If required by journal. -->   
   
   
------  
-\newpage
-<P style = "page-break-before: always">
+-----    
+  
+\newpage    
+  
   
 ### Introduction:    
   
 Despite infection control measures, transmission of SARS-CoV-2 infection has been observed in the healthcare and hospital settings. In a recent study of SARS-CoV-2-infected and -uninfected patients inadvertently roomed together, 39% of exposed uninfected patients developed COVID-19. Risk of SARS-CoV-2 transmission was associated with source patients who had low cycle threshold (Ct), i.e., high viral load, in their diagnostic testing [@Karan2021-cm].  
- 
+  
 SARS-CoV-2 transmission can be mediated by droplets, aerosols, or fomites. Prior studies have demonstrated that SARS-CoV-2 extensively contaminates surfaces in the healthcare environment [@Morawska2021-mv]. However, the spatial extent of contamination -- and how contamination changes during the course of hospitalization -- remain less well understood [@Mody2021-ag].  
+  
+We have previously applied a systematic sampling and spatial modeling strategy to define how multidrug-resistant organisms cluster in the hospital environment [@Kelly2021-vm]. We now extend the methods we have developed to understand how SARS-CoV-2 contamination is distributed spatially, and how it changes over time.  
+  
+  
+-----    
+  
+\newpage  
 
-We have previously applied spatial mapping and systematic sampling to define how multidrug-resistant organisms cluster in the hospital environment [site pending ICHE manuscript]. We now extend the methods we have developed to understand how SARS-CoV-2 contamination is distributed spatially, and how it changes over time.  
-  
-  
------  
-\newpage
-<P style = "page-break-before: always">
   
   
 ### Materials and Methods:  
   
-* __Study Design, Setting, and Population__: We performed a prospective cohort study at the Hospital of the University of Pennsylvania (HUP), an academic medical center in Philadelphia, PA, USA. (IRB protocol #843273). Patients with COVID-19 were housed on multiple hospital units over the course of the study according to bed availability. All rooms underwent daily cleaning, according to hospital protocol. Environmental services (EVS) staff used disposable disinfectant wipes (quaternary ammonium disinfectant) for use on high-touch objects, limiting use to a single surface. Floors were cleaned using a microfiber mop and a chlorine-based disinfectant (sodium dichloroisocyanurate). 
-  
-* __Causal Model__: We hypothesized that SARS-CoV-2 contamination would decay with physical distance from patient and with time from COVID-19 diagnosis. We also hypothesized that high-touch objects would be more frequently contaminated with SARS-CoV-2 RNA than low-touch objects.     
-  
+* __Study Design, Setting, and Population__: We performed a prospective cohort study at the Hospital of the University of Pennsylvania (HUP), an academic medical center in Philadelphia, PA, USA (IRB protocol #843273). Patients with COVID-19 were housed on multiple hospital units over the course of the study according to bed availability. All rooms underwent daily cleaning, according to hospital protocol. Environmental services (EVS) staff used disposable disinfectant wipes (quaternary ammonium disinfectant) for use on high-touch objects, limiting use to a single surface. Floors were cleaned using a microfiber mop and a chlorine-based disinfectant (sodium dichloroisocyanurate).  
+   
+* __Causal Model__: We hypothesized that SARS-CoV-2 contamination would decay with physical distance from patient and with time from COVID-19 diagnosis. We also hypothesized that high-touch objects would be more frequently contaminated with SARS-CoV-2 RNA than low-touch objects, and that increased COVID-19 disease severity would be associated with greater environmental contamination.     
+   
 * __Specimen Collection and SARS-CoV-2 RT-PCR__: COVID-19 patient rooms were swabbed longitudinally until day 28 or patient discharge from the hospital (i.e., hospital days 1,2,7,14,21,and 28). Longitudinal sampling continued if the patient was removed from COVID-19 isolation precautions or the patient transferred to a new hospital room. Multiple surfaces were swabbed within each patient room using a Copan FLOQ(TM) swab and a sterile template (20cm2). Specific surfaces are listed in Table 1 with high-touch surfaces selected using structured observations prior to study start. Swabs were immediately placed into buffered AVL and frozen prior to further processing. Specimens then underwent RNA extraction and RT-PCR targeting the SARS-CoV-2 N1 region in triplicate.
    
 * __Distance Data Collection__: Distance from the environmental sampling site to the patient's head of bed was recorded using a laser measuring device (Bosch GLM 20). Templates were affixed to each surface and the linear distance from the patient's head of bed to the sample site was measured.
@@ -180,45 +182,49 @@ Patient rooms were eligible for inclusion in the study if the occupant had a pos
   
 * __Availability of Data__: Data, analysis scripts, and model code are available at https://github.com/bjklab.  
   
------  
-\newpage
-<P style = "page-break-before: always">
+-----    
+  
+\newpage  
+
   
   
 ### Results:  
   
-* __Characteristics of subjects hospitalized for COVID-19 during the second (fall 2020) wave__: We collected `r nrow(dat)` specimens from `r nrow(count(dat,subject_room_id))` unique subject-room pairs, comprising `r nrow(count(dat,redcap_id))` unique subjects (i.e., `r nrow(filter(count(distinct(select(dat,subject_room_id,redcap_id)),redcap_id),n>1))` subjects were transferred at least once during the observation period). The median number of sampling events from each subject-room pair was `r round(mean(count(distinct(select(dat, subject_room_id, subject_room_day)), subject_room_id)$n, na.rm = TRUE),2)` (SD `r round(sd(count(distinct(select(dat, subject_room_id, subject_room_day)), subject_room_id)$n, na.rm = TRUE),2)`). **Table 1** summarizes the environmental surfaces sampled, whether they were high-touch or low-touch, the proportion of each specimen type from which SARS-CoV-2 RNA was detected by RT-qPCR, and the SARS-CoV-2 copy numbers measured. We did not observe significant differences in copy numbers across the surface types, but the proportion with detectable SARS-CoV-2 did vary widely.           
+* __Characteristics of subjects hospitalized for COVID-19 during the second (fall 2020) wave__: We collected `r nrow(dat)` specimens from `r nrow(count(dat,subject_room_id))` unique subject-room pairs, comprising `r nrow(count(dat,redcap_id))` unique subjects (i.e., `r nrow(filter(count(distinct(select(dat,subject_room_id,redcap_id)),redcap_id),n>1))` subjects were transferred at least once during the observation period). The median number of sampling events from each subject-room pair was `r signif(mean(count(distinct(select(dat, subject_room_id, subject_room_day)), subject_room_id)$n, na.rm = TRUE),2)` (SD `r signif(sd(count(distinct(select(dat, subject_room_id, subject_room_day)), subject_room_id)$n, na.rm = TRUE),2)`). **Table 1** summarizes the environmental surfaces sampled, whether they were high-touch or low-touch, the proportion of each specimen type from which SARS-CoV-2 RNA was detected by RT-qPCR, and the SARS-CoV-2 copy numbers measured. We did not observe significant differences in copy numbers across the surface types, but the proportion with detectable SARS-CoV-2 did vary widely.           
   
-* __SARS-CoV-2 RNA Environmental Contamination Varies with Surface Type But Not Distance from Patient__: We evaluated the relationship between the distance from the patient's head of the bed and the probability of detecting SARS-CoV-2 on environmental surfaces. There was no significant relationship between distance and the probability of SARS-CoV-2 detection, in contrast to prior studies of MDRO organisms [@Kelly2021], but the suface type was significantly associated with the probability of detection. Floor surfaces had an odds ratio of `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Estimate_exp) %>% round(.,2)` (95% CrI `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Q2.5_exp) %>% round(.,2)` to `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Q97.5_exp) %>% round(.,2)`) of SARS-CoV-2 detection, relative to elevated surfaces. High-touch elevated surfaces had an odds ratio of `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Estimate_exp) %>% round(.,2)` (95% CrI `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Q2.5_exp) %>% round(.,2)` to `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Q97.5_exp) %>% round(.,2)`) of SARS-CoV-2 detection, relative to low-touch elevated surfaces. **Figure 1A** depicts the results of a multivariable model relating distance from patient, surface location, and whether the surface was high-touch to the probability of SARS-CoV-2 detection.         
+* __SARS-CoV-2 RNA Environmental Contamination Varies with Surface Type But Not Distance from Patient__: We evaluated the relationship between the distance from the patient's head of the bed and the probability of detecting SARS-CoV-2 on environmental surfaces. There was no significant relationship between distance and the probability of SARS-CoV-2 detection, in contrast to prior studies of multidrug-resistant bacterial organisms [@Kelly2021-vm], but the suface type was significantly associated with the probability of detection. Floor surfaces had an odds ratio of `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Estimate_exp) %>% signif(.,3)` (95% CrI `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Q2.5_exp) %>% signif(.,3)` to `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Q97.5_exp) %>% signif(.,3)`) of SARS-CoV-2 detection, relative to elevated surfaces. High-touch elevated surfaces had an odds ratio of `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Estimate_exp) %>% signif(.,3)` (95% CrI `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Q2.5_exp) %>% signif(.,3)` to `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Q97.5_exp) %>% signif(.,3)`) of SARS-CoV-2 detection, relative to low-touch elevated surfaces. **Figure 1A** depicts the results of a multivariable model relating distance from patient, surface location, and whether the surface was high-touch to the probability of SARS-CoV-2 detection.         
   
-* __SARS-CoV-2 RNA Environmental Contamination Decays During Prolonged Hospitalization__: We evaluated the effect of time from COVID-19 diagnosis on the detection of SARS-CoV-2 RNA in the hospital environment via a multivariable logistic regression model relating time from COVID-19 diagnosis, surface location, and whether the surface was high-touch to the probability of SARS-CoV-2 detection. We found that the probability of detection decreased as time from COVID-19 diagnosis increased, with OR `r m_combined_summary %>% filter(model_name == "Time Fixed" & param == "b_subject_covid_day") %>% pull(Estimate_exp) %>% round(.,2)` (95% CrI `r m_combined_summary %>% filter(model_name == "Time Fixed" & param == "b_subject_covid_day") %>% pull(Q2.5_exp) %>% round(.,2)` to `r m_combined_summary %>% filter(model_name == "Time Fixed" & param == "b_subject_covid_day") %>% pull(Q97.5_exp) %>% round(.,2)`) per day since COVID-19 diagnosis. The most prominent effects were observed on high-touch elevated surfaces and floor surfaces (**Figure 1B**).             
+* __SARS-CoV-2 RNA Environmental Contamination Decays During Prolonged Hospitalization__: We evaluated the effect of time from COVID-19 diagnosis on the detection of SARS-CoV-2 RNA in the hospital environment via a multivariable logistic regression model relating time from COVID-19 diagnosis, surface location, and whether the surface was high-touch to the probability of SARS-CoV-2 detection. We found that the probability of detection decreased as time from COVID-19 diagnosis increased, with OR `r m_combined_summary %>% filter(model_name == "Time Fixed" & param == "b_subject_covid_day") %>% pull(Estimate_exp) %>% signif(.,3)` (95% CrI `r m_combined_summary %>% filter(model_name == "Time Fixed" & param == "b_subject_covid_day") %>% pull(Q2.5_exp) %>% signif(.,3)` to `r m_combined_summary %>% filter(model_name == "Time Fixed" & param == "b_subject_covid_day") %>% pull(Q97.5_exp) %>% signif(.,3)`) per day since COVID-19 diagnosis. The most prominent effects were observed on high-touch elevated surfaces and floor surfaces (**Figure 1B**).             
   
-* __SARS-CoV-2 Contamination of the Floor Increases with Pandemic Wave Duration__: To understand how subjects differed in the effect of time from COVID-19 diagnosis on SARS-CoV-2 contamination of the hospital environment, we re-fit the above model with the addition of random intercepts and slopes to account for subject-level differences. **Figure 2A** depicts the best estimate of the effect of time from COVID-19 diagnosis on the contamination in each subject's hospital room. In the figure, the lines representing each subject are colored by when they were enrolled during the course of the local, second-wave COVID-19 case surge. We observed that the contamination of high-touch elevated surfaces did not appear to relate to time from the start of the local case surge. However, contamination of floor surfaces appeared to be greater among subjects enrolled later in the course of the local case surge. To investigate this further, we added an interaction term to the model and found that each day since the start of the start of the local second wave increased the contamination of floor surfaces with OR `r m_combined_summary %>% filter(model_name == "Time Pandemic Wave Adjusted" & param == "b_site_categoryFloor:total_study_day") %>% pull(Estimate_exp) %>% round(.,2)` (95% CrI `r m_combined_summary %>% filter(model_name == "Time Pandemic Wave Adjusted" & param == "b_site_categoryFloor:total_study_day") %>% pull(Q2.5_exp) %>% round(.,2)` to `r m_combined_summary %>% filter(model_name == "Time Pandemic Wave Adjusted" & param == "b_site_categoryFloor:total_study_day") %>% pull(Q97.5_exp) %>% round(.,2)`) (**Figure 2B**).        
+* __SARS-CoV-2 Contamination of the Floor Increases with Pandemic Wave Duration__: To understand how subjects differed in the effect of time from COVID-19 diagnosis on SARS-CoV-2 contamination of the hospital environment, we re-fit the above model with the addition of random intercepts and slopes to account for subject-level differences. **Figure 2A** depicts the best estimate of the effect of time from COVID-19 diagnosis on the contamination in each subject's hospital room. In the figure, the lines representing each subject are colored by when they were enrolled during the course of the local, second-wave COVID-19 case surge. We observed that the contamination of high-touch elevated surfaces did not appear to relate to time from the start of the local case surge. However, contamination of floor surfaces appeared to be greater among subjects enrolled later in the course of the local case surge. To investigate this further, we added an interaction term to the model and found that each day since the start of the start of the local second wave increased the contamination of floor surfaces with OR `r m_combined_summary %>% filter(model_name == "Time Pandemic Wave Adjusted" & param == "b_site_categoryFloor:total_study_day") %>% pull(Estimate_exp) %>% signif(.,3)` (95% CrI `r m_combined_summary %>% filter(model_name == "Time Pandemic Wave Adjusted" & param == "b_site_categoryFloor:total_study_day") %>% pull(Q2.5_exp) %>% signif(.,3)` to `r m_combined_summary %>% filter(model_name == "Time Pandemic Wave Adjusted" & param == "b_site_categoryFloor:total_study_day") %>% pull(Q97.5_exp) %>% signif(.,3)`) (**Figure 2B**).        
   
-* __SARS-CoV-2 Contamination of Increases with COVID-19 Disease Severity__: To understand how COVID-19 disease severity could impact environmental contamination with SARS-CoV-2 RNA, we categorized subjects based on their required oxygen support: `r dat_subject %>% count(covid_severity) %>% pull(n) %>% .[1]` (`r dat_subject %>% count(covid_severity) %>% mutate(proportion = paste0(round(n / sum(n, na.rm = TRUE) * 100, 3),"%")) %>% pull(proportion) %>% .[1]`) subjects who required no oxygen support, `r dat_subject %>% count(covid_severity) %>% pull(n) %>% .[2]` (`r dat_subject %>% count(covid_severity) %>% mutate(proportion = paste0(round(n / sum(n, na.rm = TRUE) * 100, 3),"%")) %>% pull(proportion) %>% .[2]`) subjects who required only nasal or facemask oxygen support, and `r dat_subject %>% count(covid_severity) %>% pull(n) %>% .[3]` (`r dat_subject %>% count(covid_severity) %>% mutate(proportion = paste0(round(n / sum(n, na.rm = TRUE) * 100, 3),"%")) %>% pull(proportion) %>% .[3]`) subjects who required significant (i.e., high-flow, continuous or bilevel positive airway pressure, or mechanical ventilation) oxygen support. Adjusting for the site, time from COVID-19 diagnosis, and time from start of the local COVID-19 wave, we found that the use of significant oxygen support was associated with increased environmental SARS-CoV-2 RNA contamination, with OR `r m_combined_summary %>% filter(model_name == "COVID-19 Severity") %>% filter(grepl("SignificantOxygen",param)) %>% pull(Estimate_exp) %>% round(.,2)` ((95% CrI `r m_combined_summary %>% filter(model_name == "COVID-19 Severity") %>% filter(grepl("SignificantOxygen",param)) %>% pull(Q2.5_exp) %>% round(.,2)` to `r m_combined_summary %>% filter(model_name == "COVID-19 Severity") %>% filter(grepl("SignificantOxygen",param)) %>% pull(Q97.5_exp) %>% round(.,2)`)) relative to the no-oxygen-support reference group. **Figure 3** shows the predicted probabilities of SARS-CoV-2 environmental contamination as it relates to COVID-19 severity across all measured surfaces, adjusted for time from COVID-19 diagnosis and time from the start of the local COVID-19 wave.  
+* __SARS-CoV-2 Contamination of Increases with COVID-19 Disease Severity__: To understand how COVID-19 disease severity could impact environmental contamination with SARS-CoV-2 RNA, we categorized subjects based on their required oxygen support: `r dat_subject %>% count(covid_severity) %>% pull(n) %>% .[1]` (`r dat_subject %>% count(covid_severity) %>% mutate(proportion = paste0(signif(n / sum(n, na.rm = TRUE) * 100, 3),"%")) %>% pull(proportion) %>% .[1]`) subjects who required no oxygen support, `r dat_subject %>% count(covid_severity) %>% pull(n) %>% .[2]` (`r dat_subject %>% count(covid_severity) %>% mutate(proportion = paste0(signif(n / sum(n, na.rm = TRUE) * 100, 3),"%")) %>% pull(proportion) %>% .[2]`) subjects who required only nasal or facemask oxygen support, and `r dat_subject %>% count(covid_severity) %>% pull(n) %>% .[3]` (`r dat_subject %>% count(covid_severity) %>% mutate(proportion = paste0(signif(n / sum(n, na.rm = TRUE) * 100, 3),"%")) %>% pull(proportion) %>% .[3]`) subjects who required significant (i.e., high-flow, continuous or bilevel positive airway pressure, or mechanical ventilation) oxygen support. Adjusting for the site, time from COVID-19 diagnosis, and time from start of the local COVID-19 wave, we found that the use of significant oxygen support was associated with increased environmental SARS-CoV-2 RNA contamination, with OR `r m_combined_summary %>% filter(model_name == "COVID-19 Severity") %>% filter(grepl("SignificantOxygen",param)) %>% pull(Estimate_exp) %>% signif(.,3)` (95% CrI `r m_combined_summary %>% filter(model_name == "COVID-19 Severity") %>% filter(grepl("SignificantOxygen",param)) %>% pull(Q2.5_exp) %>% signif(.,3)` to `r m_combined_summary %>% filter(model_name == "COVID-19 Severity") %>% filter(grepl("SignificantOxygen",param)) %>% pull(Q97.5_exp) %>% signif(.,3)`) relative to the no-oxygen-support reference group. **Figure 3** shows the predicted probabilities of SARS-CoV-2 environmental contamination as it relates to COVID-19 severity across all measured surfaces, adjusted for time from COVID-19 diagnosis and time from the start of the local COVID-19 wave.  
 
   
   
------  
-\newpage
-<P style = "page-break-before: always">
+-----    
+  
+\newpage  
+
   
   
 ### Discussion:  
 
-We sought to define the impact of time and distance on SARS-CoV-2 surface contamination through longitudinal sampling of  within COVID-19 patient rooms. We found that distance from the patient's bed did not inform the probability of detection of SARS-CoV-2 RNA. We had hypothesized that the probability of RNA detection would decrease with distance. This hypothesis was informed by our prior work with bacterial deposition within patient rooms, where some taxa have decreased probability of detection as distance changes within patient room [@Kelly2021]. However, we found that SARS-CoV-2 detection did not vary significantly among any surface group as distance varied. This is most likely related to two factors 1) the relatively small size of patient rooms and 2) the physical spread of viral RNA through touch. We observed large differences in the probability of detecting surface contamination by surface type. Floors had high probability of contamination, which did not vary throughout the room. This is likely related to both the role of patient and healthcare personnel (HCP) foot traffic in addition to the physical action of mopping which may spread body fluids containing viral RNA within the patient's room. This finding matches previous description of high probability of floor contamination relative to other surfaces [@Chia2020]. In contrast to floors, walls had significantly lower probability of contamination. This may be due to the decreased settling of respiratory droplets on vertical surfaces, or the decreased role of touch or secondary contamination through cleaning. 
-
-While we did not observe a measurable impact of distance on the probability of surface contamination with SARS-CoV-2 RNA, we did detect a decrease in probability of detection among both high and low-touch surfaces with time from COVID-19 diagnosis. A similar finding was described by Chia et al [@Chia2020], where patients over 7 days from illness had lower probability of surface contamination within rooms. Interestingly, while the probability of floor contamination decreased with time from diagnosis, the probability remained relatively high at later time points. Combined with the finding that the probability of floor contamination increased with time from the onset of the second COVID-19 Wave, this suggests that external contamination accounts for a proportion of floor contamination. Viral RNA carried on the feet of HCP or the mops of EVS teams may have resulted in increased probability of detection as COVID-19 census increased. This is supported by other research where floor contamination was discovered to spread beyond clinical areas [@Guo2020]. Additionally, it is possible that viral RNA persists on surfaces even after terminal cleaning, leading to an accumulation effect.
-
-With increased clinical severity, specifically those who required high-flow, continuous or bilevel positive airway pressure, or mechanical ventilation, we detected an increased odds of detecting surface RNA within rooms. This finding may be the result of either the higher viral burden of occupying patients, or the role of increased respiratory droplet and aeresol production associated with respiratory procedures. In a prior study, disease severity was not correlated with cycle threshold from anatomic specimens [@Abdulrahman2021] in a large observational study, potentially supporting the contribution of respiratory care in surface contamination. Thus, while, we can only hypothesize the mechanism for greater odds of detection in these patients, this finding supports CDC guidance for prolonged isolation in critically ill patients[@CDC2021]. 
-
-Our study has several limitations. First, our study used quantitative PCR for the detection of SARS-CoV-2 RNA and did not use viral culture to determine the viability from surfaces. Secondly, we did not control for cleaning methods on study units. However, cleaning practices did not undergo systematic changes during the study time period and sampling was performed routinely prior to daily cleaning. Finally, we did not perform matching sampling of occupying patients to explore the role of patient viral load and surface contamination.
-
+We sought to define the impact of time and distance on SARS-CoV-2 contamination of the healthcare environment through longitudinal sampling of surfaces within COVID-19 patient rooms. We found that distance from the patient's bed did not inform the probability of detection of SARS-CoV-2 RNA. We had hypothesized that the probability of RNA detection would decrease with distance. This hypothesis was informed by our prior work with bacterial deposition within patient rooms, where some taxa have decreased probability of detection as distance changes within patient room [@Kelly2021-vm]. However, we found that SARS-CoV-2 detection did not vary significantly among any surface group as distance varied. This is most likely related to two factors 1) the relatively small size of patient rooms and 2) the physical spread of viral RNA through touch. We observed large differences in the probability of detecting surface contamination by surface type. Floors had high probability of contamination, which did not vary throughout the room. This is likely related to both the role of patient and healthcare personnel (HCP) foot traffic in addition to the physical action of mopping which may spread body fluids containing viral RNA within the patient's room. This finding matches previous description of high probability of floor contamination relative to other surfaces [@Chia2020]. In contrast to floors, walls had significantly lower probability of contamination. This may be due to the decreased settling of respiratory droplets on vertical surfaces, or the decreased role of touch or secondary contamination through cleaning.  
+  
+While we did not observe a measurable impact of distance on the probability of surface contamination with SARS-CoV-2 RNA, we did detect a decrease in probability of detection among both high and low-touch surfaces with time from COVID-19 diagnosis. A similar finding was described by Chia et al [@Chia2020], where patients over 7 days from illness had lower probability of surface contamination within rooms. Interestingly, while the probability of floor contamination decreased with time from diagnosis, the probability remained relatively high at later time points. Combined with the finding that the probability of floor contamination increased with time from the onset of the second COVID-19 Wave, this suggests that external contamination accounts for a proportion of floor contamination. Viral RNA carried on the feet of HCP or the mops of EVS teams may have resulted in increased probability of detection as COVID-19 census increased. This is supported by other research where floor contamination was discovered to spread beyond clinical areas [@Guo2020]. Additionally, it is possible that viral RNA persists on surfaces even after terminal cleaning, leading to an accumulation effect.  
+  
+With increased clinical severity, specifically those who required high-flow, continuous or bilevel positive airway pressure, or mechanical ventilation, we detected an increased odds of detecting surface RNA within rooms. This finding may be the result of either the higher viral burden of occupying patients, or the role of increased respiratory droplet and aerosol production associated with respiratory procedures. In a prior study, disease severity was not correlated with cycle threshold from anatomic specimens [@Abdulrahman2021] in a large observational study, potentially supporting the contribution of respiratory care in surface contamination. Thus, while, we can only hypothesize the mechanism for greater odds of detection in these patients, this finding supports CDC guidance for prolonged isolation in critically ill patients [@CDC2021-gc].  
+  
+Our study has several limitations. First, our study used quantitative PCR for the detection of SARS-CoV-2 RNA and did not use viral culture to determine the viability from surfaces. Secondly, we did not control for cleaning methods on study units. However, cleaning practices did not undergo systematic changes during the study time period and sampling was performed routinely prior to daily cleaning. Finally, we did not perform matching sampling of occupying patients to explore the role of patient viral load and surface contamination.  
+  
 In conclusion, SARS-CoV-2 RNA surface deposition did not vary with distance within patient rooms. However, surface type, severity of illness, and time predicted detection of surface contamination. Future studies are needed to determine the role of surface contamination in risk of infection among patients and HCP.
+  
+  
+-----  
+  
+\newpage  
 
------
-\newpage
-<P style = "page-break-before: always">
   
   
 ### Tables:  
@@ -257,14 +263,15 @@ dat_gt %>%
 ```
   
   
-__Table 1: Hospital environment features sampled and proportion with detectable SARS-CoV-2 RNA.__ .  
+__Table 1: Hospital environment features sampled and proportion with detectable SARS-CoV-2 RNA.__ For each environmental surface type, whether the surface was considered high-touch or low-touch, the proportion of surfaces positive for SARS-CoV-2 RNA by RT-qPCR, and the median (IQR) SARS-CoV-2 copy numbers measured are reproted.  
   
   
 
   
------  
-\newpage
-<P style = "page-break-before: always">
+-----    
+  
+\newpage  
+
   
 ### Figures:  
   
@@ -280,9 +287,10 @@ __Figure 1: Spatial and temporal effects on SARS-CoV-2 RNA contamination in the 
       
   
   
------  
-\newpage
-<P style = "page-break-before: always">
+-----    
+  
+\newpage  
+
   
 #### Figure 2:  
   
@@ -294,9 +302,10 @@ knitr::include_graphics(path = "./figs/p_combined_subject_wave_time_adjusted.png
 __Figure 2: Variation in temporal effects and influence of pandemic duration.__ (A) Days from diagnosis with COVID-19 are shown on the horizontal axis. The vertical axis depicts the probability of SARS-CoV-2 detection by RT-qPCR according to a logistic regression model incorporating the site elevation and touch, with random subject-level effects. Each line represents the best estimate for a single subjects; lines are colored according to the number of days from the start of the local COVID-19 second case wave. (B) Days from the local start of the second COVID-19 wave are shown on the horizontal axis. The vertical axis depicts the probability of SARS-CoV-2 detection by RT-qPCR according to a logistic regression model incorporating the days from COVID-19 diagnosis, surface elevation, and touch, with an interaction term between the days from the local start of the second COVID-19 wave and the surface type. The black line shows the best estimate, and shading indicates 50%, 80%, and 95% posterior credible intervals.               
   
   
------  
-\newpage
-<P style = "page-break-before: always">
+-----    
+  
+\newpage  
+
   
 #### Figure 3:  
   
@@ -308,9 +317,10 @@ knitr::include_graphics(path = "./figs/p_mvbinom_scv2_time_fix_category_touch_ad
 __Figure 3: Impact of COVID-19 disease severity on environmental contamination.__ To evaluate the effect of COVID-19 disease severity on environmental contamination, we compared the probability of SARS-CoV-2 RNA detection by RT-PCR (horizontal axis) across subjects with three levels of necessary oxygen support (vertical axis) at each sampling site. The point shows the best estimate and the sigment indicates the 95% posterior credible interval, with adjustment for time from COVID-19 diagnosis and time from the start of the local COVID-19 wave.               
   
   
------
-\newpage
-<P style = "page-break-before: always">
+-----   
+  
+\newpage  
+
   
   
 ## References  
@@ -320,9 +330,10 @@ __Figure 3: Impact of COVID-19 disease severity on environmental contamination._
   
 
   
------
-\newpage
-<P style = "page-break-before: always">
+-----  
+  
+\newpage  
+
 
   
 ## R Session Information  

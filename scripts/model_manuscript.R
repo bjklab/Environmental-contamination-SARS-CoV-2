@@ -651,7 +651,7 @@ dat_subject %>%
   #gt::gtsave("./tabs/decontam_check_subject_data.html")
 
 
-dat_long %>%
+dat_first %>%
   # exclude bathroom sites and nursing sites (different distance scheme)
   filter(grepl("bathroom|sink|toilet|nurse",site_descriptor) == FALSE) %>%
   mutate(scv2_detected = !is.na(copies_max),
@@ -702,18 +702,6 @@ m_mvbinom_scv2_time_category_touch_mix_subject_fitted %>%
 p_scv2_mvbinomial_time_site_category_touch_mix_subject_lines_severity
 
 
-# p_scv2_mvbinomial_time_site_category_touch_mix_subject_lines %>%
-#   ggsave(filename = "./figs/p_scv2_mvbinomial_time_site_category_touch_mix_subject_lines.pdf", height = 5, width = 8, units = "in")
-# p_scv2_mvbinomial_time_site_category_touch_mix_subject_lines %>%
-#   ggsave(filename = "./figs/p_scv2_mvbinomial_time_site_category_touch_mix_subject_lines.png", height = 5, width = 8, units = "in", dpi = 600)
-# p_scv2_mvbinomial_time_site_category_touch_mix_subject_lines %>%
-#   ggsave(filename = "./figs/p_scv2_mvbinomial_time_site_category_touch_mix_subject_lines.svg", height = 5, width = 8, units = "in")
-
-
-
-
-
-
 
 #' ####################################################
 #' generative model for SARS-CoV-2 contamination ~ days from COVID diagnosis, adjusted for total days since local second wave
@@ -732,19 +720,19 @@ dat %>%
 
 
 #' run binomial model
-dat %>%
-  select(scv2_detected, subject_covid_day, total_study_day, site_category, high_touch, covid_severity) %>%
-  brm(formula = scv2_detected ~ 1 + subject_covid_day + site_category * total_study_day + high_touch + covid_severity,
-      data = .,
-      family = bernoulli,
-      #prior = prior(horseshoe(scale_global = 0.2, scale_slab = 1), class=b),
-      chains = 4,
-      cores = 4,
-      control = list("adapt_delta" = 0.999, max_treedepth = 10),
-      backend = "cmdstanr",
-      seed = 16) -> m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity
-
-m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity %>% write_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity.rds.gz", compress = "gz")
+# dat %>%
+#   select(scv2_detected, subject_covid_day, total_study_day, site_category, high_touch, covid_severity) %>%
+#   brm(formula = scv2_detected ~ 1 + subject_covid_day + site_category * total_study_day + high_touch + covid_severity,
+#       data = .,
+#       family = bernoulli,
+#       #prior = prior(horseshoe(scale_global = 0.2, scale_slab = 1), class=b),
+#       chains = 4,
+#       cores = 4,
+#       control = list("adapt_delta" = 0.999, max_treedepth = 10),
+#       backend = "cmdstanr",
+#       seed = 16) -> m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity
+# 
+# m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity %>% write_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity.rds.gz", compress = "gz")
 m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity <- read_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity.rds.gz")
 
 m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity
@@ -814,11 +802,6 @@ p_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity
 
 
 
-
-
-
-
-
 #' ####################################################
 #' ####################################################
 #' WHAT'S THE IMPACT OF INTERACTION?
@@ -827,19 +810,19 @@ p_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity
 library(loo)
 
 #' run binomial model
-dat %>%
-  select(scv2_detected, subject_covid_day, total_study_day, site_category, high_touch, covid_severity) %>%
-  brm(formula = scv2_detected ~ 1 + subject_covid_day + site_category * total_study_day + high_touch + site_category * covid_severity,
-      data = .,
-      family = bernoulli,
-      #prior = prior(horseshoe(scale_global = 0.2, scale_slab = 1), class=b),
-      chains = 4,
-      cores = 4,
-      control = list("adapt_delta" = 0.999, max_treedepth = 10),
-      backend = "cmdstanr",
-      seed = 16) -> m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X
-
-m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X %>% write_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X.rds.gz", compress = "gz")
+# dat %>%
+#   select(scv2_detected, subject_covid_day, total_study_day, site_category, high_touch, covid_severity) %>%
+#   brm(formula = scv2_detected ~ 1 + subject_covid_day + site_category * total_study_day + high_touch + site_category * covid_severity,
+#       data = .,
+#       family = bernoulli,
+#       #prior = prior(horseshoe(scale_global = 0.2, scale_slab = 1), class=b),
+#       chains = 4,
+#       cores = 4,
+#       control = list("adapt_delta" = 0.999, max_treedepth = 10),
+#       backend = "cmdstanr",
+#       seed = 16) -> m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X
+# 
+# m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X %>% write_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X.rds.gz", compress = "gz")
 m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X <- read_rds(file = "./models/binomial/m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X.rds.gz")
 
 m_mvbinom_scv2_time_fix_category_touch_adjust_wave_covid_severity_X
