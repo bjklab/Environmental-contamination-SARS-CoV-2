@@ -78,7 +78,7 @@ Spatial and temporal effects on SARS-CoV-2 contamination of the healthcare envir
 SARS-CoV-2 Healthcare Contamination    
    
 ## Authors  
-Matthew J. Ziegler, MD, MS (1,2,3); Elizabeth Huang (2,3); Selamawit Bekele (2,3); Emily Reesey, MS (2,2); Pam Tolomeo, MPH (2,2), Sean Loughrey, MS (2,3); Michael Z. David, MD, PhD (1,2,3); Ebbing Lautenbach, MD, MPH, MS (1,2,3); Brendan J. Kelly, MD, MS (1,2,3) for the CDC Prevention Epicenters Program
+Matthew J. Ziegler, MD, MS (1,2,3); Elizabeth Huang (2,3); Selamawit Bekele (2,3); Emily Reesey, MS (2,2); Pam Tolomeo, MPH (2,2), Sean Loughrey, MS (2,3); Michael Z. David, MD, PhD (1,2,3); Ebbing Lautenbach, MD, MPH, MS (1,2,3); Brendan J. Kelly, MD, MS (1,2,3) for the CDC Prevention Epicenters Program  
   
 ## Affiliations  
 1 - Division of Infectious Diseases, Department of Medicine;   
@@ -89,9 +89,9 @@ Matthew J. Ziegler, MD, MS (1,2,3); Elizabeth Huang (2,3); Selamawit Bekele (2,3
 Brendan J. Kelly, MD, MS - brendank@pennmedicine.upenn.edu  
   
 ## Authors' Contributions  
-MJZ - study design, data collection and analysis, manuscript;
-EH - specimen collection and processing;  
-SB - subject enrollment and specimen collection;  
+MJZ - study design, data collection and analysis, manuscript;  
+EH - specimen collection and processing;   
+SB - subject enrollment and specimen collection;   
 SL - specimen processing and analysis;  
 ER - specimen processing and analysis;  
 PT - subject enrollment and specimen collection, manuscript;  
@@ -109,13 +109,15 @@ Data, analysis scripts, and model code are available at github.com/bjklab.
 SARS-CoV-2, COVID-19, hospital microbiome    
   
 ### Acknowledgements:  
-This research, BJK, MJZ, and EL are supported in part by a CDC Cooperative Agreement FOA#CK16-004 "Epicenters for the Prevention of Healthcare Associated Infections”. BJK is supported by the National Institute for Allergy and Infectious Diseases (K23 AI121485 and L30 AI120149). MJZ is supported by the National Institute for Allergy and Infectious Diseases (K23 AI143925).   
+This research, BJK, MJZ, and EL are supported in part by a CDC Cooperative Agreement FOA#CK16-004 "Epicenters for the Prevention of Healthcare Associated Infections”. BJK is supported by the National Institute for Allergy and Infectious Diseases (K23 AI121485 and L30 AI120149). MJZ is supported by the National Institute for Allergy and Infectious Diseases (K23 AI143925). We thank the Bushman Laboratory at the University of Pennsylvania for quantitative PCR methods support.   
   
 ### Disclosures:  
 The authors report no conflicts of interest.    
   
 ### Word Count:    
-?????       
+- Abstract: 199  
+- Body: 2227         
+  
   
   
 -----    
@@ -130,7 +132,7 @@ The authors report no conflicts of interest.
   
 * __Methods__: We sampled surfaces longitudinally within COVID-19 patient rooms, performed quantitative RT-PCR for the detection of SARS-CoV-2 RNA, and modeled distance, time, and severity of illness on the probability of detecting SARS-CoV-2 using a mixed-effects binomial model. 
   
-* __Results__: The probability of detecting SARS-CoV-2 RNA in a patient room did not vary with distance. However, we found that surface type predicted probability of detection, with floors and high-touch surfaces having the highest probability of detection (floors odds ratio (OR) `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Estimate_exp) %>% signif(.,3)` (95% CrI `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Q2.5_exp) %>% signif(.,3)` to `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Q97.5_exp) %>% signif(.,3)`); high-touch elevated OR `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Estimate_exp) %>% signif(.,3)` (95% CrI `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Q2.5_exp) %>% signif(.,3)` to `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Q97.5_exp) %>% signif(.,3)`)). Patients requiring high-flow oxygen, positive airway pressure, or mechanical ventilation were associated with increased surface contamination (OR `r m_combined_summary %>% filter(model_name == "COVID-19 Severity") %>% filter(grepl("SignificantOxygen",param)) %>% pull(Estimate_exp) %>% signif(.,3)` (95% CrI `r m_combined_summary %>% filter(model_name == "COVID-19 Severity") %>% filter(grepl("SignificantOxygen",param)) %>% pull(Q2.5_exp) %>% signif(.,3)` to `r m_combined_summary %>% filter(model_name == "COVID-19 Severity") %>% filter(grepl("SignificantOxygen",param)) %>% pull(Q97.5_exp) %>% signif(.,3)`)). The probability of surface elevated contamination decayed with prolonged hospitalization, but the probability of floor detection increased with duration of the local pandemic wave.  
+* __Results__: The probability of detecting SARS-CoV-2 RNA in a patient room did not vary with distance. However, we found that surface type predicted probability of detection, with floors and high-touch surfaces having the highest probability of detection (floors odds ratio (OR) `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Estimate_exp) %>% signif(.,3)` (95% CrI `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Q2.5_exp) %>% signif(.,3)` to `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_site_categoryFloor") %>% pull(Q97.5_exp) %>% signif(.,3)`); high-touch elevated OR `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Estimate_exp) %>% signif(.,3)` (95% CrI `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Q2.5_exp) %>% signif(.,3)` to `r m_combined_summary %>% filter(model_name == "Distance Fixed" & param == "b_high_touchTRUE") %>% pull(Q97.5_exp) %>% signif(.,3)`)). <mark>Increased surface contamination was observed in room where patients required high-flow oxygen, positive airway pressure, or mechanical ventilation</mark> (OR `r m_combined_summary %>% filter(model_name == "COVID-19 Severity") %>% filter(grepl("SignificantOxygen",param)) %>% pull(Estimate_exp) %>% signif(.,3)` (95% CrI `r m_combined_summary %>% filter(model_name == "COVID-19 Severity") %>% filter(grepl("SignificantOxygen",param)) %>% pull(Q2.5_exp) %>% signif(.,3)` to `r m_combined_summary %>% filter(model_name == "COVID-19 Severity") %>% filter(grepl("SignificantOxygen",param)) %>% pull(Q97.5_exp) %>% signif(.,3)`)). The probability of elevated surface contamination decayed with prolonged hospitalization, but the probability of floor detection increased with duration of the local pandemic wave.  
     
 * __Conclusions__: Distance from patient’s bed did not predict SARS-CoV-2 RNA deposition in patient rooms, but surface type, severity of illness, and time from local pandemic wave predicted surface deposition.   
    
@@ -150,7 +152,7 @@ If required by journal. -->
   
 ### Introduction:    
   
-Despite infection control measures, transmission of SARS-CoV-2 infection has been observed in the hospital and other healthcare settings. In a recent study of SARS-CoV-2-infected and -uninfected patients inadvertently roomed together, 39% of exposed, previously uninfected patients developed COVID-19. Risk of SARS-CoV-2 transmission was associated with source patients who had low cycle threshold (Ct), i.e., high viral load, in their diagnostic testing [@Karan2021-cm].  
+Despite infection control measures, transmission of SARS-CoV-2 infection has been observed in the hospital and other healthcare settings. In a recent study of SARS-CoV-2-infected and -uninfected patients inadvertently roomed together, 39% of exposed, previously uninfected patients developed COVID-19. Risk of SARS-CoV-2 transmission was associated with source patients who had low cycle threshold (Ct), i.e., high viral load, in their diagnostic testing, <mark>with 91.7% of those exposed to such source patients developing infection</mark>[@Karan2021-cm].  
   
 SARS-CoV-2 transmission can be mediated by droplets, aerosols, or fomites. Prior studies have demonstrated that SARS-CoV-2 extensively contaminates surfaces in the healthcare environment [@Morawska2021-mv; @Ong2021_1; @Ryu2020; @Moore2021; @Coil2021; @Redmond2021; @Ong2021_2]. However, the spatial extent of contamination and how contamination changes during the course of hospitalization remain less well understood [@Mody2021-ag].  
   
