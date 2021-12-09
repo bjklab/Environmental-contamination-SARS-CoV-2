@@ -4,7 +4,7 @@
 bibliography: bib/references.bib
 csl: csl/infection-control-and-hospital-epidemiology.csl
 output: html_document
-css: style_helvetica_double.css
+css: style_roboto_double.css
 ---
 
 ```{r setup, echo=FALSE, eval=TRUE, include=FALSE, autodep=TRUE}
